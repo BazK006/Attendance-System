@@ -1,7 +1,33 @@
-Flask==3.0.3
-Flask-SQLAlchemy==3.1.1
-psycopg2-binary==2.9.9
-python-dotenv==1.0.1
+# Backend Framework
+Flask
+Flask-SQLAlchemy
+
+# Database
+SQLAlchemy
+psycopg2-binary
+
+# Authentication & Security
+Authlib
+Werkzeug
+Flask-WTF
+Flask-Limiter
+
+# Real-time Communication
+Flask-SocketIO
+
+# Environment
+python-dotenv
+
+# Data Processing
 pandas
+numpy
+
+# Excel Export
 openpyxl
+
+# PDF Export
+pdfkit
 xhtml2pdf
+
+# QR Code
+qrcode
