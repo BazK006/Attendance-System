@@ -1,147 +1,123 @@
-# 🏫 Classroom Attendance & Teacher Profile System
+# 🏫 Attendance System
 
-> **ระบบเช็คชื่อนักเรียน จัดการสถิติเวลาเรียน และบริหารจัดการข้อมูลผู้สอน**
->
-> เว็บแอปพลิเคชันที่พัฒนาด้วย Flask เพื่อช่วยให้ครูติดตามข้อมูลการเข้าเรียน จัดการข้อมูลรายวิชาและห้องเรียน ดูสถิติการเข้าเรียน และส่งออกรายงานในรูปแบบที่นำไปใช้งานต่อได้ โดยมีระบบเข้าสู่ระบบสำหรับผู้ดูแลระบบและครู รวมถึง Google OAuth สำหรับผู้ใช้ที่มีบัญชีครูอยู่ในระบบแล้ว
+### ระบบเช็คชื่อนักเรียน จัดการสถิติการเข้าเรียน และบริหารจัดการข้อมูลผู้สอน
 
----
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-Framework-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6%2B-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 
-## 📑 สารบัญ
-
-- [ภาพรวมโครงการ](#-ภาพรวมโครงการ)
-- [คุณสมบัติหลัก](#-คุณสมบัติหลัก)
-- [เทคโนโลยีที่ใช้](#-เทคโนโลยีที่ใช้)
-- [โครงสร้างโปรเจกต์](#-โครงสร้างโปรเจกต์)
-- [ข้อกำหนดก่อนติดตั้ง](#-ข้อกำหนดก่อนติดตั้ง)
-- [การติดตั้งบน Windows](#-การติดตั้งบน-windows)
-- [การตั้งค่า Environment Variables](#-การตั้งค่า-environment-variables)
-- [การตั้งค่า Google OAuth](#-การตั้งค่า-google-oauth)
-- [การรันระบบ](#-การรันระบบ)
-- [การใช้งานโดยสรุป](#-การใช้งานโดยสรุป)
-- [หลักการคำนวณสถิติ](#-หลักการคำนวณสถิติ)
-- [การส่งออกรายงาน](#-การส่งออกรายงาน)
-- [ระบบเข้าสู่ระบบและ Session](#-ระบบเข้าสู่ระบบและ-session)
-- [แนวทางด้านความปลอดภัย](#-แนวทางด้านความปลอดภัย)
-- [การทดสอบหลังติดตั้ง](#-การทดสอบหลังติดตั้ง)
-- [การแก้ปัญหาเบื้องต้น](#-การแก้ปัญหาเบื้องต้น)
-- [แนวทางพัฒนาต่อ](#-แนวทางพัฒนาต่อ)
+เว็บแอปพลิเคชันที่พัฒนาด้วย Python Flask เพื่อช่วยให้ครูจัดการข้อมูลนักเรียน รายวิชา และห้องเรียน บันทึกการเข้าเรียน ติดตามสถิติ และส่งออกรายงานได้สะดวกยิ่งขึ้น
 
 ---
 
-## 🎯 ภาพรวมโครงการ
+## 📌 ภาพรวมโครงการ
 
-Classroom Attendance & Teacher Profile System เป็นเว็บแอปพลิเคชันสำหรับสนับสนุนงานด้านการเช็คชื่อและติดตามสถิติการเข้าเรียนของนักเรียน รวมถึงการจัดการข้อมูลของครูและห้องเรียน
+**Attendance System** เป็นเว็บแอปพลิเคชันสำหรับสนับสนุนงานด้านการเรียนการสอน โดยเน้นการจัดการข้อมูลการเข้าเรียนและการติดตามสถิติของนักเรียน
 
-โครงการเน้นการนำเสนอข้อมูลด้วยหน้าจอที่อ่านง่าย ใช้งานสะดวก และสามารถส่งออกรายงานเพื่อนำไปใช้ในงานเอกสารได้ โดยใช้ Flask เป็นฝั่งเซิร์ฟเวอร์, SQLAlchemy สำหรับติดต่อฐานข้อมูล และ Bootstrap 5 สำหรับจัดหน้าเว็บให้รองรับอุปกรณ์หลายขนาด
+ระบบแบ่งการใช้งานตามบทบาทของผู้ใช้ ได้แก่ **Admin** และ **Teacher** พร้อมรองรับการเข้าสู่ระบบผ่าน Google สำหรับบัญชีครูที่ลงทะเบียนไว้ในระบบแล้ว
 
-### เป้าหมายของระบบ
+### 🎯 เป้าหมายของระบบ
 
-- ช่วยให้ครูตรวจสอบข้อมูลการเข้าเรียนได้สะดวกขึ้น
-- สรุปสถิติการมาเรียน สาย ลา และขาดเรียนของนักเรียน
-- แสดงภาพรวมด้วยกราฟและตาราง
-- ส่งออกรายงานเพื่อนำไปตรวจสอบหรือใช้ประกอบการทำงานต่อ
-- ให้ผู้ใช้จัดการข้อมูลโปรไฟล์ของตนเองได้ตามเงื่อนไขของบัญชี
-- แยกการเข้าสู่ระบบของผู้ดูแลระบบและครู
-
-> **หมายเหตุ:** ความสามารถที่เปิดใช้งานจริงขึ้นอยู่กับ Route, Model, Template และการตั้งค่าที่อยู่ในเวอร์ชันของโครงการที่นำไปรัน
+- ช่วยให้ครูตรวจสอบและบันทึกการเข้าเรียนได้สะดวก
+- จัดการข้อมูลนักเรียน รายวิชา และห้องเรียน
+- สรุปสถิติการมาเรียน สาย ลา และขาดเรียน
+- แสดงข้อมูลผ่าน Dashboard กราฟ และตาราง
+- ส่งออกรายงานเพื่อนำไปใช้งานต่อ
+- จัดการข้อมูลโปรไฟล์ครูตามสิทธิ์ที่กำหนด
 
 ---
 
 ## ✨ คุณสมบัติหลัก
 
-### 📊 1. สถิติการเข้าเรียน
+### 1. 📊 ระบบเช็คชื่อและสถิติการเข้าเรียน
 
-- สรุปจำนวนคาบเรียนของรายวิชาและห้องเรียน
-- แสดงจำนวนการเข้าเรียนแต่ละสถานะ ได้แก่ มาเรียน สาย ลา และขาดเรียน
-- แสดงภาพรวมของทั้งห้องด้วยกราฟวงกลมแบบ Doughnut Chart
-- แสดงสถิติรายบุคคลในรูปแบบตาราง
-- คำนวณเปอร์เซ็นต์การเข้าเรียนจากจำนวนครั้งที่มาเรียนและมาสายเทียบกับจำนวนคาบทั้งหมด
-- ใช้แถบ Progress เพื่อช่วยให้เห็นระดับเปอร์เซ็นต์ได้ง่ายขึ้น
+- บันทึกสถานะการเข้าเรียน ได้แก่ มาเรียน สาย ลา และขาดเรียน
+- แสดงข้อมูลการเข้าเรียนผ่านตารางและกราฟ
+- ดูสถิติรายบุคคลและภาพรวมของห้องเรียน
+- คำนวณเปอร์เซ็นต์การเข้าเรียนของนักเรียน
+- ตรวจสอบข้อมูลการเข้าเรียนย้อนหลัง
 
-### 🏫 2. จัดการข้อมูลวิชาและห้องเรียน
+### 2. 📸 Student Snapshot
+
+ระบบบันทึกรายชื่อนักเรียน ณ เวลาที่สร้างคาบเรียน เพื่อเก็บข้อมูลสมาชิกของห้องเรียนในแต่ละครั้ง
+
+ช่วยป้องกันปัญหาเมื่อนักเรียนถูกเพิ่ม เปลี่ยนแปลงข้อมูล หรือย้ายห้องเรียนในภายหลัง แล้วส่งผลต่อรายชื่อของคาบเรียนที่ผ่านมา
+
+### 3. 🏫 จัดการข้อมูลห้องเรียนและรายวิชา
 
 - แสดงข้อมูลรายวิชา รหัสวิชา ห้องเรียน และครูผู้สอน
-- รองรับการแก้ไขข้อมูลห้องเรียนและรายวิชาตามสิทธิ์ที่กำหนด
-- มีกล่องยืนยันก่อนลบข้อมูล เพื่อลดการกดลบโดยไม่ตั้งใจ
-- แจ้งผลการดำเนินการด้วย SweetAlert2
+- จัดการข้อมูลตามสิทธิ์ของผู้ใช้
+- รองรับการแก้ไขข้อมูลที่เกี่ยวข้อง
+- มีกล่องยืนยันก่อนดำเนินการที่สำคัญ
+- แจ้งผลการดำเนินการผ่าน SweetAlert2
 
-**ข้อควรระวัง:** ก่อนลบข้อมูลห้องเรียนหรือข้อมูลที่เชื่อมโยงกับประวัติการเข้าเรียน ควรตรวจสอบความสัมพันธ์ของข้อมูลและสำรองฐานข้อมูลให้เรียบร้อย การลบข้อมูลจริงอาจย้อนกลับไม่ได้ ทั้งนี้ขึ้นอยู่กับวิธีจัดการความสัมพันธ์และ Transaction ที่กำหนดไว้ในระบบ
+### 4. 👤 จัดการโปรไฟล์ครู
 
-### 📄 3. ส่งออกรายงานหลายรูปแบบ
+- ดูและแก้ไขข้อมูลโปรไฟล์
+- จัดการชื่อ นามสกุล แผนก และข้อมูลโรงเรียน
+- ตรวจสอบอีเมลซ้ำก่อนบันทึก
+- รองรับการล็อกช่องอีเมลสำหรับ Session ที่เข้าสู่ระบบผ่าน Google
 
-- **PDF:** รายงานสำหรับอ่าน พิมพ์ หรือจัดเก็บเป็นเอกสาร
-- **Excel (`.xlsx`):** จัดรูปแบบตารางและปรับความกว้างคอลัมน์ตามการทำงานของส่วน Export
-- **CSV (`.csv`):** ข้อมูลแบบตารางที่สามารถนำไปประมวลผลต่อได้
+### 5. 🔐 ระบบเข้าสู่ระบบ
 
-รายละเอียดของแต่ละรูปแบบอยู่ในหัวข้อ [การส่งออกรายงาน](#-การส่งออกรายงาน)
+- Admin Login
+- Teacher Login
+- Google OAuth 2.0 / OpenID Connect
+- แยกสิทธิ์การใช้งานตาม Role
+- จัดการ Flask Session หลังเข้าสู่ระบบและออกจากระบบ
+- รองรับการเข้าสู่ระบบ Google สำหรับบัญชีครูที่มีอยู่ในฐานข้อมูลเท่านั้น
 
-### 👤 4. จัดการโปรไฟล์ครู
+ระบบตรวจสอบสถานะอีเมลที่ยืนยันแล้วจาก Google ก่อนดำเนินการจับคู่กับบัญชีครูในฐานข้อมูล
 
-- แก้ไขชื่อ นามสกุล แผนก และชื่อโรงเรียนตามฟิลด์ที่ระบบกำหนด
-- ตรวจสอบข้อมูลอีเมลก่อนบันทึก
-- ตรวจสอบว่าอีเมลซ้ำกับบัญชีอื่นหรือไม่
-- แจ้งผลการบันทึกด้วย SweetAlert2
-- ในการทำงานปัจจุบัน ช่องอีเมลสามารถถูกล็อกบนหน้าโปรไฟล์เมื่อ Session ระบุว่าเข้าสู่ระบบผ่าน Google
+### 6. 📄 ระบบส่งออกรายงาน
 
-### 🔐 5. ระบบเข้าสู่ระบบ
+รองรับการส่งออกข้อมูล 3 รูปแบบ
 
-- เข้าสู่ระบบด้วยบัญชีผู้ดูแลระบบ
-- เข้าสู่ระบบด้วยบัญชีครูและรหัสผ่าน
-- เข้าสู่ระบบผ่าน Google OAuth 2.0 / OpenID Connect
-- ตรวจสอบอีเมล Google ว่าผ่านการยืนยันแล้วก่อนดำเนินการต่อ
-- จำกัด Google Login ไว้สำหรับบัญชีครูที่มีอยู่ในฐานข้อมูลตามพฤติกรรมของ Route ปัจจุบัน
-- ใช้ Flask Session เก็บข้อมูลผู้ใช้และ Role หลังเข้าสู่ระบบ
-- ล้าง Session เมื่อออกจากระบบ
-
-### 🎨 6. UI/UX
-
-- Bootstrap 5.3 สำหรับ Grid, Forms, Buttons, Badges และ Responsive Layout
-- Bootstrap Icons สำหรับไอคอน
-- ฟอนต์ Sarabun สำหรับเนื้อหาภาษาไทย
-- SweetAlert2 สำหรับแสดงข้อความสำเร็จ ข้อผิดพลาด คำเตือน และกล่องยืนยัน
-- ใช้โทนสีแนว Modern Blue–Indigo Gradient ในส่วนที่เกี่ยวข้อง
-- ใช้ตารางแบบ Responsive เพื่อรองรับพื้นที่หน้าจอขนาดเล็ก
+| รูปแบบ | การใช้งาน |
+|---|---|
+| PDF | อ่าน พิมพ์ และจัดเก็บเป็นเอกสาร |
+| Excel (.xlsx) | เปิด ตรวจสอบ และจัดการข้อมูลใน Spreadsheet |
+| CSV (.csv) | นำข้อมูลไปประมวลผลต่อ |
 
 ---
 
-## 🛠️ เทคโนโลยีที่ใช้
+## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
 
-### Backend และ Database
+### ⚙️ Backend & Database
 
-| เทคโนโลยี | หน้าที่ |
-|---|---|
-| Python 3.10+ | ภาษาหลักของระบบ |
-| Flask | Web Framework และ Routing |
-| Flask Blueprints | แบ่ง Route ตามส่วนงาน |
-| Flask-SQLAlchemy / SQLAlchemy | ORM และจัดการการเชื่อมต่อฐานข้อมูล |
-| Werkzeug Security | สร้างและตรวจสอบ Password Hash |
-| Authlib | เชื่อมต่อ OAuth / OpenID Connect |
-| python-dotenv | โหลดค่าตั้งค่าจากไฟล์ `.env` ในสภาพแวดล้อมที่เรียกใช้ `load_dotenv()` |
-| Pandas / NumPy | ประมวลผลข้อมูลตามส่วนงานที่ใช้งาน |
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Flask-SQLAlchemy](https://img.shields.io/badge/Flask--SQLAlchemy-ORM-D71F00?style=for-the-badge&logo=flask&logoColor=white)](https://flask-sqlalchemy.palletsprojects.com/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
 
-### Frontend
+### 🎨 Frontend & UI
 
-| เทคโนโลยี | หน้าที่ |
-|---|---|
-| HTML5 / CSS3 | โครงสร้างและตกแต่งหน้าเว็บ |
-| JavaScript (ES6+) | การโต้ตอบและ Fetch API |
-| Jinja2 | Render Template จาก Flask |
-| Bootstrap 5.3 | Responsive Layout และ UI Components |
-| Bootstrap Icons | ไอคอน |
-| SweetAlert2 | Popup แจ้งเตือนและยืนยันการดำเนินการ |
-| Sarabun | ฟอนต์ภาษาไทย |
-| Chart.js / Doughnut Chart | แสดงภาพรวมข้อมูลในกราฟ ตามการตั้งค่าของหน้าเว็บ |
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Jinja2](https://img.shields.io/badge/Jinja2-Templates-B41717?style=for-the-badge)](https://jinja.palletsprojects.com/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![Bootstrap Icons](https://img.shields.io/badge/Bootstrap_Icons-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://icons.getbootstrap.com/)
+[![SweetAlert2](https://img.shields.io/badge/SweetAlert2-Alert-8A2BE2?style=for-the-badge)](https://sweetalert2.github.io/)
+[![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
 
-### การสร้างรายงานและบริการเชื่อมต่อ
+### 🔐 Authentication & Data Processing
 
-| เทคโนโลยี | หน้าที่ |
-|---|---|
-| PDFKit | เชื่อมต่อการสร้าง PDF ผ่าน `wkhtmltopdf` หาก Route ใช้แนวทางนี้ |
-| Pisa / xhtml2pdf | สร้าง PDF ในส่วนที่โครงการตั้งค่าให้ใช้ |
-| QuickChart API | สร้างภาพกราฟสำหรับรายงานในส่วนที่เชื่อมต่อ API |
-| Google OAuth 2.0 / OpenID Connect | ยืนยันตัวตนด้วย Google |
+[![Werkzeug](https://img.shields.io/badge/Werkzeug-Security-333333?style=for-the-badge)](https://werkzeug.palletsprojects.com/)
+[![Authlib](https://img.shields.io/badge/Authlib-OAuth-4B32C3?style=for-the-badge)](https://authlib.org/)
+[![Google OAuth](https://img.shields.io/badge/Google_OAuth-2.0-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://developers.google.com/identity/protocols/oauth2)
+[![Pandas](https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![NumPy](https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white)](https://numpy.org/)
 
-> รายการนี้อ้างอิงจากข้อมูลโครงการที่ระบุไว้ การติดตั้งไลบรารีที่จำเป็นให้ยึด `requirements.txt` และโค้ดจริงของแต่ละ Route เป็นหลัก
+### 📄 Report Formats
+
+[![PDF](https://img.shields.io/badge/PDF-Report-B30B00?style=for-the-badge)](https://www.adobe.com/acrobat/about-adobe-pdf.html)
+[![Excel](https://img.shields.io/badge/Excel-.xlsx-217346?style=for-the-badge&logo=microsoftexcel&logoColor=white)](https://www.microsoft.com/microsoft-365/excel)
+[![CSV](https://img.shields.io/badge/CSV-Data_Format-3572A5?style=for-the-badge)](https://en.wikipedia.org/wiki/Comma-separated_values)
 
 ---
 
@@ -149,61 +125,62 @@ Classroom Attendance & Teacher Profile System เป็นเว็บแอป�
 
 ```text
 Attendance_System/
-├── models/                  # Database Models และฟังก์ชันที่เกี่ยวข้อง
-│   ├── ...                  # เช่น Teacher, Student, Attendance
-│   └── admin.py             # Model ของ Admin (หากจัดไว้ในไฟล์นี้)
-├── routes/                  # Flask Blueprints และ Route ต่าง ๆ
-│   ├── ...                  # Login, Dashboard, Teacher, Reports ฯลฯ
-├── static/                  # CSS, JavaScript, Images และ Assets
-├── templates/               # Jinja2 HTML Templates
-│   ├── login.html            # หน้าเข้าสู่ระบบ
-│   ├── edit_profile.html     # หน้าแก้ไขโปรไฟล์ครู
+│
+├── models/                     # Database Models
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── attendance.py
+│   ├── class_session.py
+│   ├── logs.py
+│   ├── session_student.py
+│   ├── students.py
+│   └── teachers.py
+│
+├── routes/                     # Flask Routes / Blueprints
+│   ├── admin.py
+│   ├── check_in.py
+│   ├── class_session.py
+│   ├── dashboard.py
+│   ├── data_student.py
+│   ├── login.py
+│   ├── logs_status.py
+│   ├── stat_dashboard.py
+│   ├── stat_summary.py
+│   └── teacher.py
+│
+├── static/
+│   ├── css/                    # Stylesheets
+│   ├── js/                     # JavaScript
+│   └── images/                 # Images and Icons
+│
+├── templates/                  # Jinja2 Templates
+│   ├── components/
+│   ├── errors/
+│   ├── pdf/
 │   └── ...
-├── .gitignore               # ระบุไฟล์ที่ไม่ต้องการติดตามด้วย Git
-├── app.py                   # สร้างและตั้งค่า Flask App
-├── create_admin.py          # สคริปต์สร้าง Admin เริ่มต้น
-├── database.py              # ตั้งค่า SQLAlchemy / Database
-├── PROJECT.md               # บันทึกและรายละเอียดโครงการ
-├── requirements.txt         # Python Dependencies
-└── README.md                # คู่มือโครงการ
-```
-
-> โครงสร้างด้านบนเป็นภาพรวม ตัวอย่างชื่อไฟล์และตำแหน่งอาจต่างจากโปรเจกต์จริง ควรปรับรายการให้ตรงกับไฟล์ใน Repository ก่อนเผยแพร่
-
----
-
-## 💻 ข้อกำหนดก่อนติดตั้ง
-
-ตรวจให้แน่ใจว่ามีเครื่องมือดังต่อไปนี้:
-
-- Windows 10/11 หรือสภาพแวดล้อมที่รองรับ Python และ Flask
-- Python 3.10 ขึ้นไปตามที่โครงการระบุ
-- `pip` สำหรับติดตั้ง Python Packages
-- Git (ถ้าดึงโค้ดจาก Repository)
-- Google Cloud Project และ OAuth Client หากต้องการทดสอบ Google Login
-- `wkhtmltopdf` หากส่วนสร้าง PDF ใช้ PDFKit ร่วมกับโปรแกรมนี้
-- ฐานข้อมูลที่ตรงกับการตั้งค่าของโปรเจกต์
-
-ตรวจสอบ Python และ pip ผ่าน PowerShell:
-
-```powershell
-python --version
-python -m pip --version
+│
+├── .gitignore
+├── app.py                      # Flask Application
+├── database.py                 # SQLAlchemy Instance
+├── PROJECT.md                  # Project Information
+├── requirements.txt            # Python Dependencies
+├── run_dev.ps1                 # Development Startup Script
+└── README.md
 ```
 
 ---
 
-## 🚀 การติดตั้งบน Windows
+## 💻 การติดตั้งและเริ่มต้นใช้งาน
 
-### 1. เปิดโฟลเดอร์โปรเจกต์
+### 1. ดาวน์โหลดโปรเจกต์
 
-เปิด PowerShell แล้วเปลี่ยนไปยังโฟลเดอร์ที่เก็บโปรเจกต์ ตัวอย่างเช่น:
+เปิด PowerShell แล้วใช้คำสั่ง
 
 ```powershell
-cd path\to\Attendance_System
-```
+git clone https://github.com/BazK006/Attendance-System.git
 
-เปลี่ยน `path\to\Attendance_System` ให้เป็นตำแหน่งจริงของโฟลเดอร์บนเครื่อง
+cd Attendance-System
+```
 
 ### 2. สร้าง Virtual Environment
 
@@ -211,325 +188,221 @@ cd path\to\Attendance_System
 python -m venv .venv
 ```
 
-เปิดใช้งาน Virtual Environment:
+เปิดใช้งาน Virtual Environment
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
 
-หาก PowerShell ปฏิเสธการรันสคริปต์ ให้ตรวจนโยบายการรันสคริปต์ของเครื่องและแนวทางที่เหมาะกับสภาพแวดล้อมของตนเอง ไม่ควรเปลี่ยนนโยบายความปลอดภัยทั้งระบบโดยไม่เข้าใจผลกระทบ
-
-เมื่อเปิดใช้งานสำเร็จ โดยทั่วไปชื่อ `(.venv)` จะปรากฏหน้าบรรทัดคำสั่ง
-
-### 3. อัปเดต pip และติดตั้ง Dependencies
+### 3. ติดตั้ง Dependencies
 
 ```powershell
 python -m pip install --upgrade pip
+
 pip install -r requirements.txt
 ```
 
-หากติดตั้งไม่สำเร็จ ให้ตรวจสอบเวอร์ชัน Python, การเปิดใช้งาน `.venv` และชื่อแพ็กเกจใน `requirements.txt` ก่อนติดตั้งแพ็กเกจเพิ่มเติมทีละตัว
+### 4. ตั้งค่าฐานข้อมูล
 
-### 4. ตั้งค่า Environment Variables
+ระบบใช้ PostgreSQL เป็นฐานข้อมูลหลัก
 
-สร้างไฟล์ `.env` ที่โฟลเดอร์หลัก โดยดูตัวอย่างในหัวข้อ [การตั้งค่า Environment Variables](#-การตั้งค่า-environment-variables)
+- ติดตั้งและเตรียม PostgreSQL ให้พร้อมใช้งาน
+- สร้างฐานข้อมูลสำหรับ Attendance System
+- ตั้งค่าการเชื่อมต่อฐานข้อมูลให้ตรงกับ Configuration ที่กำหนดไว้ในโปรเจกต์
+- ตรวจสอบสิทธิ์ของ Database User ก่อนเริ่มระบบ
 
-### 5. ติดตั้ง wkhtmltopdf (หากจำเป็น)
+**หมายเหตุ:** อย่าเผยแพร่ Database Password หรือ Connection String ที่มีข้อมูลรับรองลง GitHub
 
-หาก PDF Export ใช้ PDFKit:
+### 5. ตั้งค่า Environment Variables
 
-1. ดาวน์โหลดตัวติดตั้งจากเว็บไซต์ทางการของ [wkhtmltopdf](https://wkhtmltopdf.org/downloads.html)
-2. ติดตั้งโปรแกรม
-3. ตรวจสอบว่าโปรเจกต์กำหนด Path ไว้ตรงกับตำแหน่งติดตั้งจริง หรือกำหนดให้โปรแกรมเรียก `wkhtmltopdf` จาก PATH ได้
-4. ทดสอบ Export PDF หลังเปิดแอป
+สร้างไฟล์ `.env` ในโฟลเดอร์หลักของโปรเจกต์
 
-ตรวจสอบตำแหน่ง executable จาก PowerShell ได้ด้วย:
-
-```powershell
-where.exe wkhtmltopdf
-```
-
-หากคำสั่งไม่พบไฟล์ อาจต้องเพิ่มตำแหน่งติดตั้งเข้า PATH หรือระบุ Path ในการตั้งค่า PDFKit ตามโค้ดของโปรเจกต์
-
-### 6. ตรวจสอบการตั้งค่าฐานข้อมูล
-
-ตรวจไฟล์ `database.py` และการตั้งค่าใน `app.py` ว่าระบบใช้ฐานข้อมูลใดและเชื่อมต่ออย่างไร หากมี Migration ให้ใช้ขั้นตอน Migration ที่โครงการกำหนดก่อนเริ่มใช้งาน
-
-**อย่าลบฐานข้อมูลเดิมเพื่อแก้ปัญหาการติดตั้งโดยไม่สำรองข้อมูลก่อน** เพราะอาจทำให้บัญชีครู ข้อมูลห้องเรียน และประวัติการเข้าเรียนสูญหาย
-
----
-
-## 🔑 การตั้งค่า Environment Variables
-
-ตัวอย่างไฟล์ `.env` สำหรับสภาพแวดล้อมพัฒนา:
+ตัวอย่างการกำหนดค่า
 
 ```dotenv
 # Flask
-SECRET_KEY=replace-with-a-long-random-secret
+SECRET_KEY=your-secret-key
 
-# Google OAuth 2.0 / OpenID Connect
+# Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 GOOGLE_REDIRECT_URI=http://127.0.0.1:5000/login/google/callback
 
-# Cookie: ใช้ true เมื่อให้บริการผ่าน HTTPS ในสภาพแวดล้อมนั้น
+# Cookie Settings
 SESSION_COOKIE_SECURE=false
 ```
 
-### คำอธิบายตัวแปร
-
-| ตัวแปร | คำอธิบาย |
+| ตัวแปร | หน้าที่ |
 |---|---|
-| `SECRET_KEY` | Secret Key ที่ Flask ใช้กับ Session และความสามารถที่อาศัย Flask signing ต้องเป็นค่าสุ่มที่คาดเดายาก |
-| `GOOGLE_CLIENT_ID` | Client ID จาก Google Cloud Console |
-| `GOOGLE_CLIENT_SECRET` | Client Secret จาก Google Cloud Console ห้ามเผยแพร่หรือ Commit ลง Git |
-| `GOOGLE_REDIRECT_URI` | URL ที่ Google จะส่งกลับมาหลังยืนยันตัวตน ต้องตรงกับ URI ที่ลงทะเบียนไว้ |
-| `SESSION_COOKIE_SECURE` | ควรเปิดเป็น `true` เมื่อใช้ HTTPS ใน Production |
+| `SECRET_KEY` | ใช้สำหรับ Flask Session และการลงนามข้อมูล |
+| `GOOGLE_CLIENT_ID` | ระบุ OAuth Client ของ Google |
+| `GOOGLE_CLIENT_SECRET` | Secret สำหรับ Google OAuth |
+| `GOOGLE_REDIRECT_URI` | URL สำหรับรับ Callback หลัง Google Login |
+| `SESSION_COOKIE_SECURE` | กำหนดให้ Cookie ส่งผ่าน HTTPS เท่านั้นเมื่อเปิดใช้งาน |
 
-**ข้อสำคัญ:** การสร้างไฟล์ `.env` เพียงอย่างเดียวไม่ได้ทำให้ Flask ใช้ทุกค่าทันที ต้องตรวจว่า `app.py` อ่านและนำค่าเหล่านี้ไปใส่ใน `app.config` ตามที่ระบบต้องการ เช่น `SECRET_KEY` และ Cookie Settings ส่วน Route ปัจจุบันอ่านค่า Google OAuth ผ่าน `os.environ.get()` และมีการเรียก `load_dotenv()` ในโมดูล Auth
+**ข้อควรระวัง**
+- สร้าง `SECRET_KEY` ใหม่ที่คาดเดายาก
+- เก็บ `GOOGLE_CLIENT_SECRET` เป็นความลับ
+- ค่าในตัวอย่างเป็น Placeholder ไม่ใช่ Credentials สำหรับใช้งานจริง
+- ตรวจสอบให้ชื่อตัวแปรตรงกับที่แอปอ่านจาก Environment
+- ห้าม Commit ไฟล์ `.env` ลง GitHub
 
-อย่าใช้ค่า `SECRET_KEY` ตัวอย่างข้างบนในระบบจริง ให้สร้างค่าสุ่มใหม่และเก็บเป็นความลับ
+### 6. เริ่มต้นระบบ
 
-### ป้องกันไฟล์ลับไม่ให้ขึ้น Git
-
-ตรวจไฟล์ `.gitignore` ให้มีอย่างน้อย:
-
-```gitignore
-.env
-.env.*
-!.env.example
-.venv/
-__pycache__/
-*.py[cod]
-instance/
-```
-
-ปรับรายการให้เหมาะกับโครงสร้างโครงการจริง หาก Secret เคยถูก Push ขึ้น Repository แล้ว ควรเปลี่ยน Secret ที่เกี่ยวข้องด้วย การลบไฟล์จาก Commit ล่าสุดอย่างเดียวอาจไม่ลบ Secret ออกจาก Git History
-
----
-
-## 🌐 การตั้งค่า Google OAuth
-
-Google Login ใช้ Authlib ร่วมกับ OpenID Connect Discovery Endpoint:
-
-```text
-https://accounts.google.com/.well-known/openid-configuration
-```
-
-Endpoint นี้เป็น URL ของ Google สำหรับค้นหาข้อมูลการตั้งค่า OpenID Connect ไม่ใช่ URL แปลกปลอมหรือ URL ที่ผู้ใช้ทั่วไปต้องกรอกเอง
-
-### ขั้นตอนโดยสรุป
-
-1. เปิด Google Cloud Console และเลือกหรือสร้าง Project
-2. ตั้งค่า OAuth consent screen ตามประเภทผู้ใช้ของโครงการ
-3. สร้าง OAuth Client ID สำหรับ Web Application
-4. เพิ่ม Authorized redirect URI ให้ตรงกับ `GOOGLE_REDIRECT_URI`
-5. นำ Client ID และ Client Secret มาเก็บใน `.env`
-6. ตรวจว่า Callback URL ที่แอปสร้างหรือใช้ตรงกันทุกตัวอักษร รวมถึง `http`/`https`, hostname, port และ path
-7. ทดสอบทั้งกรณีบัญชีครูที่มีอยู่แล้วและอีเมล Google ที่ไม่มีในฐานข้อมูล
-
-### พฤติกรรมของ Google Login ในโครงการ
-
-ตาม Route ปัจจุบัน ระบบจะ:
-
-1. เปลี่ยนผู้ใช้ไปยืนยันตัวตนกับ Google
-2. รับ Token กลับผ่าน Authlib
-3. อ่านข้อมูลผู้ใช้จาก `userinfo`
-4. ตรวจว่าอีเมลมีค่าและ `email_verified` เป็น `true`
-5. ค้นหาบัญชีครูที่มีอีเมลตรงกันในฐานข้อมูล
-6. ปฏิเสธหากไม่พบบัญชีครูที่ลงทะเบียนไว้
-7. บันทึกเวลาเข้าใช้งานและกำหนด Session หลัง Login สำเร็จ
-
-โครงการไม่ควรถือว่าการยืนยันตัวตนกับ Google เพียงอย่างเดียวแปลว่าผู้ใช้ได้รับสิทธิ์เป็นครูโดยอัตโนมัติ การกำหนดสิทธิ์ใช้งานยังต้องเป็นไปตามนโยบายของระบบ
-
----
-
-## ▶️ การรันระบบ
-
-### วิธีที่ 1: ใช้สคริปต์สำหรับ Developer
+**วิธีที่ 1: ใช้ Development Script**
 
 ```powershell
 .\run_dev.ps1
 ```
 
-### วิธีที่ 2: เรียก Flask App โดยตรง
+**วิธีที่ 2: เรียก Flask โดยตรง**
 
 ```powershell
 python app.py
 ```
 
-วิธีที่ใช้ได้จริงขึ้นอยู่กับการตั้งค่าใน `run_dev.ps1` และ `app.py` หากสคริปต์มีขั้นตอนเตรียมฐานข้อมูลหรือตั้ง Environment Variables ควรใช้คำสั่งที่โครงการกำหนดไว้
-
-เมื่อเซิร์ฟเวอร์เริ่มทำงานแล้ว ให้เปิดเบราว์เซอร์ไปที่:
+เมื่อเซิร์ฟเวอร์เริ่มทำงานแล้ว เปิดเบราว์เซอร์ที่
 
 ```text
 http://127.0.0.1:5000
 ```
 
-URL นี้เหมาะกับการทดสอบบนเครื่องเดียวกัน ไม่ใช่ URL สำหรับ Production
+> การเริ่มต้นระบบครั้งแรกอาจต้องเตรียม Database Schema และบัญชี Admin ตามขั้นตอนที่ผู้ดูแลโครงการกำหนด
 
 ---
 
-## 🧭 การใช้งานโดยสรุป
+## 🌐 การตั้งค่า Google Login
 
-### สำหรับผู้ดูแลระบบ
+ระบบใช้ **Google OAuth 2.0 / OpenID Connect** ร่วมกับ Authlib เพื่อให้ครูสามารถเข้าสู่ระบบด้วยบัญชี Google ที่มีอยู่ในระบบ
 
-- เข้าสู่ระบบด้วยบัญชี Admin ที่สร้างไว้
-- ไปยังหน้าจัดการระบบตามสิทธิ์ที่กำหนด
-- จัดการข้อมูลที่ระบบอนุญาต
-- ตรวจสอบข้อมูลและระมัดระวังการลบรายการที่เชื่อมโยงกับข้อมูลอื่น
+### ขั้นตอนการตั้งค่า
 
-### สำหรับครู
+1. เปิด [Google Cloud Console](https://console.cloud.google.com/)
+2. เลือก Google Cloud Project ของ Attendance System
+3. เข้าเมนู Google Auth Platform
+4. สร้างหรือเลือก OAuth Client ประเภท Web Application
+5. กำหนด Authorized JavaScript origins
+6. กำหนด Authorized redirect URIs
+7. นำ Client ID และ Client Secret มาใส่ใน `.env`
 
-- เข้าสู่ระบบด้วยอีเมลหรือรหัสครูพร้อมรหัสผ่าน หรือใช้ Google Login ตามที่ระบบเปิดให้ใช้งาน
-- ดู Dashboard และข้อมูลที่ได้รับอนุญาต
-- ตรวจสอบสถิติการเข้าเรียนของรายวิชาและห้องเรียน
-- แก้ไขโปรไฟล์ส่วนตัว
-- ส่งออกรายงานตามรูปแบบที่เปิดใช้งาน
+### ตัวอย่าง Redirect URI
 
-### การแก้ไขอีเมลในโปรไฟล์
+สำหรับ Local Development
 
-ในการทำงานของหน้าโปรไฟล์ปัจจุบัน ตัวแปร `auth_provider` ใน Flask Session ใช้ระบุวิธี Login ของ Session ปัจจุบัน:
+```text
+http://127.0.0.1:5000/login/google/callback
+```
 
-- `local` หมายถึงเข้าสู่ระบบด้วยบัญชีและรหัสผ่าน
-- `google` หมายถึงเข้าสู่ระบบด้วย Google
+เมื่อ Deploy ระบบแล้ว ต้องเพิ่ม Domain และ Redirect URI ของ Production ให้ตรงกับ URL จริง รวมถึงปรับค่าใน Environment Variables ด้วย
 
-Template สามารถใช้ค่า `is_google_user` เพื่อแสดงช่องอีเมลแบบแก้ไขได้หรือ Read-only ให้ตรงกับวิธี Login ได้ อย่างไรก็ตาม กฎสำคัญต้องตรวจที่ Backend ด้วย เพราะการตั้ง `readonly` ใน HTML เพียงอย่างเดียวไม่สามารถป้องกันผู้ใช้สร้าง POST Request เองได้
+### พฤติกรรมการเข้าสู่ระบบ
 
-หากระบบต้องการล็อกอีเมลถาวรตามประเภทบัญชี ไม่ใช่ตามวิธี Login ใน Session ปัจจุบัน ควรจัดเก็บและตรวจประเภทบัญชีในฐานข้อมูลให้ชัดเจน
+- รับข้อมูลผู้ใช้จาก Google ผ่าน OpenID Connect
+- ตรวจสอบว่าอีเมลได้รับการยืนยันแล้ว
+- ค้นหาบัญชีครูที่มีอีเมลตรงกันในฐานข้อมูล
+- ไม่อนุญาตให้บัญชี Google ที่ยังไม่ได้ลงทะเบียนเป็นครูเข้าสู่ระบบ
+- สร้าง Flask Session หลังยืนยันตัวตนสำเร็จ
+
+**เอกสารเพิ่มเติม:** [Google Identity – OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect)
 
 ---
 
 ## 📐 หลักการคำนวณสถิติ
 
-สูตรเปอร์เซ็นต์การเข้าเรียนที่ระบุไว้ในโครงการคือ:
+ระบบนับการมาเรียนและการมาสายเป็นการเข้าเรียน
+
+### สูตรคำนวณเปอร์เซ็นต์การเข้าเรียน
 
 ```text
-เปอร์เซ็นต์การเข้าเรียน = (จำนวนมาเรียน + จำนวนมาสาย) / จำนวนคาบทั้งหมด × 100
+(Present + Late) / Eligible Sessions × 100
 ```
 
-ตัวอย่าง:
+โดย `Eligible Sessions` คือจำนวนคาบที่นักเรียนมีรายชื่ออยู่ในห้องเรียนของคาบนั้น
+
+### ตัวอย่าง
 
 - มาเรียน 8 ครั้ง
 - มาสาย 1 ครั้ง
-- จำนวนคาบทั้งหมด 10 ครั้ง
-
-คำนวณได้:
+- มีรายชื่อและสิทธิ์เข้าเรียนทั้งหมด 10 คาบ
 
 ```text
 (8 + 1) / 10 × 100 = 90%
 ```
 
-จากสูตรนี้ การมาเรียนและมาสายถูกนับเป็นการเข้าเรียน ส่วนการลาและการขาดไม่ถูกนำมาบวกในตัวเศษ
+การลาและการขาดเรียนจะไม่ถูกนับเป็นการเข้าเรียน
 
-**ข้อควรระวัง:** หากจำนวนคาบทั้งหมดเท่ากับ 0 ต้องไม่หารด้วยศูนย์ ให้กำหนดค่าที่แสดงตามกติกาของระบบ เช่น `0%` ซึ่งควรให้ตรงกันทั้งหน้า Dashboard และรายงาน Export
+การใช้จำนวน Eligible Sessions ช่วยให้การคำนวณสอดคล้องกับช่วงเวลาที่นักเรียนมีรายชื่ออยู่ในห้องเรียนจริง เช่น นักเรียนที่เพิ่งเข้ามาอยู่ในห้องภายหลังจะไม่ถูกนำไปหารด้วยคาบที่ยังไม่มีรายชื่อ
 
 ---
 
 ## 📤 การส่งออกรายงาน
 
-### PDF
+### 📕 PDF
 
-ใช้สำหรับการอ่านและจัดเก็บรายงานในรูปแบบเอกสาร รวมถึงการพิมพ์บนกระดาษ A4 ตาม Layout ของส่วน Export
+สำหรับอ่าน พิมพ์ และจัดเก็บรายงานในรูปแบบเอกสาร โดยรูปแบบการแสดงผลขึ้นอยู่กับ Template และเครื่องมือที่ใช้สร้าง PDF
 
-หากใช้ PDFKit ต้องติดตั้ง `wkhtmltopdf` เพิ่มเติมและตรวจ Path ให้ถูกต้อง ส่วนที่ใช้ Pisa หรือ `xhtml2pdf` ให้ตรวจ Dependency และข้อจำกัดด้าน CSS/HTML ตามไลบรารีที่ใช้จริง
+### 📗 Excel (.xlsx)
 
-หากรายงานแสดงกราฟที่สร้างผ่าน QuickChart API ต้องตรวจว่าเครื่องที่รันระบบสามารถเชื่อมต่อบริการได้ และควรประเมินข้อมูลที่ถูกส่งไปยังบริการภายนอกก่อนส่งข้อมูลนักเรียนหรือข้อมูลที่ระบุตัวบุคคล
+สำหรับเปิด ตรวจสอบ และนำข้อมูลไปจัดการต่อใน Spreadsheet
 
-### Excel (`.xlsx`)
+### 📄 CSV (.csv)
 
-ออกแบบเพื่อให้เปิดและนำข้อมูลไปวิเคราะห์ต่อใน Spreadsheet ได้สะดวก โดยการปรับความกว้างคอลัมน์อัตโนมัติขึ้นอยู่กับโค้ด Export ที่ใช้งานจริง
-
-### CSV (`.csv`)
-
-CSV เหมาะกับการนำเข้าหรือประมวลผลต่อในโปรแกรมอื่น โครงการระบุการใช้ UTF-8 BOM (`utf-8-sig`) เพื่อช่วยให้ Microsoft Excel เปิดข้อความภาษาไทยได้ถูกต้องในสภาพแวดล้อมที่เกี่ยวข้อง
-
-### ตรวจสอบก่อนส่งออกรายงาน
-
-- เลือกรายวิชาและห้องเรียนให้ถูกต้อง
-- ตรวจจำนวนคาบและข้อมูลนักเรียน
-- ตรวจว่ารายงานมีข้อมูลตามช่วงเวลาที่ต้องการ
-- เก็บไฟล์รายงานไว้ในตำแหน่งที่เหมาะสม เพราะอาจมีข้อมูลส่วนบุคคลของนักเรียน
+สำหรับนำข้อมูลไปประมวลผลต่อในโปรแกรมหรือเครื่องมืออื่น รองรับ UTF-8 BOM เพื่อช่วยให้ Microsoft Excel แสดงข้อความภาษาไทยได้ถูกต้องในสภาพแวดล้อมที่เกี่ยวข้อง
 
 ---
 
-## 🔐 ระบบเข้าสู่ระบบและ Session
+## 🔐 ความปลอดภัย
 
-### Password Login
+ระบบมีแนวทางจัดการความปลอดภัยเบื้องต้น ได้แก่
 
-ระบบตรวจสอบรหัสผ่านด้วย Werkzeug Security ผ่าน Password Hash ไม่ควรเก็บรหัสผ่านจริงแบบ Plain Text ในฐานข้อมูล
-
-### Google Login
-
-Authlib ใช้เชื่อมต่อ OAuth / OpenID Connect ส่วนการอนุญาตให้เข้าสู่ระบบในฐานข้อมูลจะตรวจบัญชีครูที่มีอยู่ตาม Route ของโครงการ
-
-### Flask Session
-
-หลัง Login สำเร็จ ระบบเก็บข้อมูลที่จำเป็นสำหรับระบุผู้ใช้ เช่น:
-
-```python
-session["user_id"] = teacher.id
-session["role"] = "teacher"
-session["username"] = teacher.full_name
-session["auth_provider"] = "local"  # หรือ "google"
-```
-
-ตัวอย่างนี้อธิบายแนวคิดของ Session สำหรับครู ไม่ใช่โค้ดแทนที่ Route ทั้งหมด ในโค้ดจริงให้กำหนด `auth_provider` ให้ตรงกับช่องทาง Login ที่ผ่านการยืนยันตัวตนแล้ว
-
-### Logout
-
-การเรียก `session.clear()` ล้างข้อมูลที่เก็บอยู่ใน Flask Session รวมถึงข้อมูลผู้ใช้และสถานะวิธี Login ที่แอปเก็บไว้ แต่ไม่ได้หมายความว่าได้เพิกถอนสิทธิ์ Google ที่อนุญาตให้แอปแล้ว หากแอปมีการเก็บหรือใช้ Google Access Token แยกต่างหาก ต้องจัดการ Token นั้นตามความจำเป็นด้วย
+- ใช้ Password Hash สำหรับจัดเก็บรหัสผ่าน
+- แยกสิทธิ์การใช้งานระหว่าง Admin และ Teacher
+- ใช้ Flask Session สำหรับจัดการสถานะผู้ใช้
+- ใช้ Google OAuth สำหรับยืนยันตัวตน
+- เก็บค่าความลับไว้ใน Environment Variables
+- ไม่เผยแพร่ไฟล์ `.env` และ Credentials ลง GitHub
+- ตรวจสอบสิทธิ์ฝั่ง Server ก่อนเข้าถึงหรือแก้ไขข้อมูล
+- ควรใช้ HTTPS เมื่อ Deploy ใน Production
+- สำรองฐานข้อมูลก่อนแก้ไขโครงสร้างหรือลบข้อมูล
 
 ---
 
-## 🛡️ แนวทางด้านความปลอดภัย
+## 🔀 Development Workflow
 
-แนวทางต่อไปนี้ควรได้รับการตรวจสอบก่อนนำระบบไปใช้จริง:
+โครงการใช้ Git และ GitHub ในการจัดการ Source Code โดยแยก Branch สำหรับพัฒนาและ Branch หลัก
 
-### 1. ปกป้อง Secret และ Configuration
+| Branch | วัตถุประสงค์ |
+|---|---|
+| `main` | เก็บโค้ดหลักที่พร้อมใช้งาน |
+| `dev_baz_work` | ใช้พัฒนา แก้ไข และทดลองฟีเจอร์ |
 
-- เก็บ Google Client Secret และ Flask `SECRET_KEY` ใน Environment Variables หรือ Secret Manager
-- อย่า Commit `.env` หรือข้อมูลลับลง Git
-- ใช้ Secret ที่คาดเดายาก ไม่ใช้ค่าตัวอย่างใน README
-- หาก Secret รั่วไหล ให้เปลี่ยนหรือหมุน Secret ที่เกี่ยวข้องทันที
+เมื่อพัฒนาฟีเจอร์หรือแก้ไขโค้ดเรียบร้อยแล้ว จะใช้ **Pull Request** เพื่อตรวจสอบและรวมการเปลี่ยนแปลงกลับเข้าสู่ `main`
 
-### 2. ใช้ HTTPS ใน Production
-
-- ใช้ HTTPS สำหรับหน้า Login, Callback และหน้าที่เกี่ยวข้องกับข้อมูลส่วนบุคคล
-- เปิด `SESSION_COOKIE_SECURE` เมื่อใช้งานผ่าน HTTPS
-- ใช้ `SESSION_COOKIE_HTTPONLY` และ `SESSION_COOKIE_SAMESITE` ตามรูปแบบแอป
-- ตั้งค่า Host และ Proxy ที่เชื่อถือได้อย่างเหมาะสมเมื่ออยู่หลัง Reverse Proxy
-
-### 3. ตรวจสอบสิทธิ์ในฝั่ง Server
-
-- ทุก Route ที่แสดงหรือเปลี่ยนข้อมูลต้องตรวจว่ามี Session และ Role ที่เหมาะสม
-- อย่าอาศัยการซ่อนปุ่มหรือซ่อนหน้าเว็บเป็นมาตรการควบคุมสิทธิ์เพียงอย่างเดียว
-- ตรวจการเป็นเจ้าของข้อมูลก่อนแก้ไขหรือลบข้อมูลที่เกี่ยวข้องกับครูหรือห้องเรียน
-
-### 4. ป้องกัน CSRF
-
-- ตรวจว่าเปิดใช้ CSRF protection สำหรับฟอร์มที่เปลี่ยนแปลงข้อมูลผ่าน POST/PUT/PATCH/DELETE แล้ว
-- เมื่อเปลี่ยน Logout เป็น POST ให้แนบ CSRF token และแก้แบบฟอร์มใน Template ให้ตรงกับ Route
-- ไม่ควรยกเว้น CSRF ให้ทั้ง Blueprint โดยไม่มีเหตุจำเป็น
-
-### 5. จำกัดการลองเข้าสู่ระบบ
-
-- เพิ่ม Rate Limiting สำหรับ Login เพื่อลดการเดารหัสผ่านซ้ำ ๆ
-- ใช้ข้อความผิดพลาดทั่วไปที่ไม่เปิดเผยว่ามีบัญชีใดอยู่จริงหรือไม่
-- บันทึกเหตุการณ์ที่จำเป็นสำหรับการตรวจสอบ โดยหลีกเลี่ยงการบันทึกรหัสผ่านหรือ Token ลง Log
-
-### 6. จัดการ Transaction และ Error
-
-- ใช้ `commit()` เมื่อพร้อมยืนยันการเปลี่ยนแปลง
-- ใช้ `rollback()` เมื่อ Transaction เกิดข้อผิดพลาด
-- บันทึกรายละเอียด Exception ใน Server Log โดยไม่เปิดเผยข้อมูลภายในแก่ผู้ใช้
-- สำรองฐานข้อมูลก่อน Migration หรือเปลี่ยน Schema
-
-### 7. ตรวจสอบ OAuth Callback
-
-- Redirect URI ต้องตรงกับที่ลงทะเบียนใน Google Cloud Console
-- ตรวจสอบข้อมูลผู้ใช้ที่ได้รับจาก Google และสถานะอีเมลที่ยืนยันแล้ว
-- ใช้การตรวจ OAuth state และ ID Token ตาม flow ที่ Authlib รองรับ
-- สำหรับการผูก Google Account ระยะยาว ควรใช้ Google `sub` เป็นตัวระบุ และจัดการการเพิ่มคอลัมน์/การเชื่อมบัญชีผ่าน Migration อย่างถูกต้อง
+แนวทางนี้ช่วยให้การพัฒนาเป็นระเบียบ และลดผลกระทบต่อโค้ดหลักของระบบ
 
 ---
+
+## ⚠️ หมายเหตุ
+
+- โปรเจกต์นี้อยู่ระหว่างการพัฒนาและปรับปรุง
+- การใช้งานบางส่วนอาจต้องตั้งค่าฐานข้อมูลและ Google OAuth ก่อน
+- การสร้างรายงาน PDF อาจต้องติดตั้งเครื่องมือเพิ่มเติมตามไลบรารีที่ใช้งานจริง
+- ควรสำรองฐานข้อมูลก่อนการแก้ไขโครงสร้างหรือลบข้อมูล
+- ไม่ควรนำข้อมูลนักเรียนจริงหรือ Credentials ไปเผยแพร่ใน Repository
+- การใช้งานใน Production ควรตรวจสอบความปลอดภัยและการตั้งค่าระบบก่อนเปิดให้บริการ
+
+---
+
+## 🚀 แนวทางพัฒนาต่อ
+
+- ปรับปรุง Dashboard และการแสดงผลสถิติ
+- เพิ่มระบบแจ้งเตือนและติดตามการเข้าเรียน
+- พัฒนาระบบกู้คืนรหัสผ่าน
+- ปรับปรุงการจัดการสิทธิ์และความปลอดภัย
+- รองรับการใช้งานในสภาพแวดล้อม Production
+
+---
+
+**Attendance System**
+
+*Developed with Dev Baz ❤️*
