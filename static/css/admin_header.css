@@ -1,0 +1,87 @@
+/* ==========================================
+Admin Topbar - Main Style
+========================================== */
+
+#admin-topbar {
+    background: linear-gradient(90deg, #1d4ed8 0%, #1e3a8a 100%) !important;
+    height: 64px;
+    min-height: 64px;
+    border-radius: 0 0 10px 10px;
+    z-index: 1040 !important;
+    font-family: 'Inter', 'Sarabun', sans-serif;
+}
+
+#admin-topbar,
+#admin-topbar .container-fluid,
+#admin-profile-wrapper {
+    overflow: visible !important;
+}
+
+#admin-topbar .admin-username {
+    max-width: 120px;
+}
+
+#admin-topbar .admin-profile-menu {
+    width: 240px;
+    min-width: 220px;
+    max-width: calc(100vw - 1rem);
+    z-index: 1060;
+}
+
+#admin-topbar .admin-profile-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    border-radius: 6px;
+    margin: 0 6px;
+    width: auto;
+    transition: background-color 0.15s ease-in-out,
+        color 0.15s ease-in-out,
+        padding-left 0.15s ease-in-out;
+}
+
+#admin-topbar .admin-profile-menu .dropdown-item:hover {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-body-color) !important;
+    padding-left: 18px !important;
+}
+
+#admin-topbar .admin-profile-menu .dropdown-item.text-danger:hover {
+    background-color: #fff5f5;
+    color: #dc3545 !important;
+}
+
+[data-bs-theme="dark"] #admin-topbar .admin-profile-menu .dropdown-item.text-danger:hover {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #dc3545 !important;
+}
+
+#admin-profile-wrapper .arrow-icon {
+    display: inline-block;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#admin-profile-wrapper .dropdown-toggle-custom.show .arrow-icon {
+    transform: rotate(180deg);
+}
+
+#admin-topbar .dropdown-toggle-custom::after {
+    display: none !important;
+}
+
+@media (max-width: 575.98px) {
+    #admin-topbar .admin-profile-menu {
+        width: min(240px, calc(100vw - 1rem));
+        min-width: min(220px, calc(100vw - 1rem));
+    }
+
+    #admin-topbar .admin-profile-menu .dropdown-item {
+        white-space: normal;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    #admin-topbar .admin-profile-menu {
+        width: 240px;
+        min-width: 220px;
+    }
+}

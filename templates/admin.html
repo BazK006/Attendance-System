@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Admin Dashboard - ภาพรวมระบบเช็คชื่อนักเรียน</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/th.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/shield-fill-check.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</head>
+
+<body class="bg-light">
+    {% include 'components/admin_header.html' %}
+
+    <main class="container-xxl py-4 py-lg-5 admin-analytics">
+        <div
+            class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4 dashboard-enter dashboard-delay-1">
+            <div>
+                <div class="section-kicker mb-2">
+                    <i class="bi bi-shield-check me-1"></i>
+                    ATTENDANCE SYSTEM ADMINISTRATION
+                </div>
+
+                <h1 class="page-title fw-bold mb-2">
+                    ภาพรวมระบบ
+                </h1>
+
+                <p class="page-subtitle mb-0">
+                    ติดตามสถิติผู้ใช้งาน การเข้าสู่ระบบ และการเพิ่มข้อมูลภายในระบบเช็คชื่อ
+                </p>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="small-pill"><i class="bi bi-calendar-check"></i>
+                    {% if period == 'day' %}รายวัน{% elif period == 'month' %}รายเดือน{% else %}รายปี{% endif %}
+                </span>
+                <span class="small-pill"><i class="bi bi-clock"></i> อัปเดตเมื่อเปิดหน้านี้</span>
+            </div>
+        </div>
+
+
+        <section class="filter-shell p-3 p-lg-4 mb-4 dashboard-enter dashboard-delay-2" aria-label="ตัวกรองช่วงเวลา">
+            <form id="dashboardFilterForm" method="GET" action="{{ url_for('admin.manage_system') }}">
+                <input type="hidden" name="period" id="periodInput" value="{{ period }}">
+                <div class="row g-3 align-items-end">
+
+                    <!-- เลือกช่วงเวลา -->
+                    <div class="col-12 col-lg-5">
+                        <label class="filter-label">
+                            ช่วงเวลาที่ต้องการดู
+                        </label>
+
+                        <div class="period-switch" role="group" aria-label="เลือกช่วงเวลา">
+
+                            <button type="button" class="period-btn {% if period == 'day' %}active{% endif %}"
+                                data-period="day" aria-pressed="{{ 'true' if period == 'day' else 'false' }}">
+                                <i class="bi bi-calendar-day me-1"></i>
+                                <span>รายวัน</span>
+                            </button>
+
+                            <button type="button" class="period-btn {% if period == 'month' %}active{% endif %}"
+                                data-period="month" aria-pressed="{{ 'true' if period == 'month' else 'false' }}">
+                                <i class="bi bi-calendar-month me-1"></i>
+                                <span>รายเดือน</span>
+                            </button>
+
+                            <button type="button" class="period-btn {% if period == 'year' %}active{% endif %}"
+                                data-period="year" aria-pressed="{{ 'true' if period == 'year' else 'false' }}">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                <span>รายปี</span>
+                            </button>
+
+                            <button type="button" class="period-btn {% if period == 'range' %}active{% endif %}"
+                                data-period="range" aria-pressed="{{ 'true' if period == 'range' else 'false' }}">
+                                <i class="bi bi-calendar-range me-1"></i>
+                                <span>ช่วงวันที่</span>
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <!-- รายวัน -->
+                    <div class="col-12 col-sm-6 col-lg-4" id="dateFilterWrap" {% if period !='day' %}hidden{% endif %}>
+
+                        <label for="dateFilter" class="filter-label">
+                            เลือกวันที่
+                        </label>
+
+                        <input class="form-control filter-input" type="text" name="date" id="dateFilter"
+                            value="{{ selected_date }}" placeholder="เลือกวันที่..." autocomplete="off" readonly {% if
+                            period !='day' %}disabled{% endif %}>
+                    </div>
+
+                    <!-- รายเดือน -->
+                    <div class="col-12 col-sm-6 col-lg-4" id="monthFilterWrap" {% if period !='month' %}hidden{% endif
+                        %}>
+
+                        <label for="monthFilter" class="filter-label">
+                            เลือกเดือน
+                        </label>
+
+                        <input class="form-control filter-input" type="text" id="monthFilter"
+                            placeholder="เลือกเดือน..." autocomplete="off" readonly {% if period !='month' %}disabled{%
+                            endif %}>
+
+                        <!-- เก็บค่าเดือนสำหรับส่งไป Backend -->
+                        <input type="hidden" name="month" id="monthFilterValue" value="{{ selected_month }}" {% if
+                            period !='month' %}disabled{% endif %}>
+                    </div>
+
+                    <!-- รายปี -->
+                    <div class="col-12 col-sm-6 col-lg-4" id="yearFilterWrap" {% if period !='year' %}hidden{% endif %}>
+                        <label for="yearFilter" class="filter-label">
+                            เลือกปี ค.ศ.
+                        </label>
+
+                        <input class="form-control filter-input" type="number" name="year" id="yearFilter" min="2000"
+                            max="2100" value="{{ selected_year }}" {% if period !='year' %}disabled{% endif %}>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-lg-4" id="rangeFilterWrap" {% if period !='range' %}hidden{% endif
+                        %}>
+                        <label for="rangeDatePicker" class="filter-label">
+                            เลือกช่วงวันที่
+                        </label>
+
+                        <div class="input-group range-date-group">
+
+                            <span class="input-group-text range-date-icon">
+                                <i class="bi bi-calendar-range"></i>
+                            </span>
+
+                            <input type="text" class="form-control filter-input range-date-input" id="rangeDatePicker"
+                                placeholder="วันเริ่มต้น – วันสิ้นสุด" autocomplete="off" readonly
+                                aria-label="เลือกวันเริ่มต้นและวันสิ้นสุด" {% if period !='range' %}disabled{% endif %}>
+                        </div>
+
+                        <input type="hidden" name="start_date" id="startDateFilter"
+                            value="{{ selected_range_start|default('', true) }}" {% if period !='range' %}disabled{%
+                            endif %}>
+
+                        <input type="hidden" name="end_date" id="endDateFilter"
+                            value="{{ selected_range_end|default('', true) }}" {% if period !='range' %}disabled{% endif
+                            %}>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <button class="btn btn-apply w-50" type="submit">
+                            <i class="bi bi-funnel-fill me-2"></i>
+                            ใช้ตัวกรอง
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+
+            <div class="form-text mt-2" id="rangePickerHint" {% if period !='range' %}hidden{% endif %}>
+                คลิกวันที่เริ่มต้น แล้วคลิกวันที่สิ้นสุดในปฏิทิน
+            </div>
+
+            <div class="small text-secondary mt-3">
+                <i class="bi bi-info-circle me-1"></i>
+                {% if period == 'day' %}
+
+                แสดงข้อมูลของวันที่ {{ selected_date }}
+
+                {% elif period == 'month' %}
+
+                แสดงข้อมูลของเดือน {{ selected_month }}
+
+                {% elif period == 'year' %}
+
+                แสดงข้อมูลของปี {{ selected_year }}
+
+                {% elif range_has_selection|default(false) %}
+
+                แสดงข้อมูลตั้งแต่วันที่
+                <strong>{{ selected_range_start_display }}</strong>
+                ถึง
+                <strong>{{ selected_range_end_display }}</strong>
+                โดยรวมทั้งสองวัน
+
+                {% else %}
+
+                กรุณาเลือกวันเริ่มต้นและวันสิ้นสุดที่ต้องการดู
+
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- KPI Cards -->
+        <section class="mb-4 dashboard-enter dashboard-delay-3" aria-label="ตัวเลขสรุป">
+            <div class="row g-3">
+                <div class="col-6 col-xl-3">
+                    <div class="metric-card" style="--metric-color:#4f46e5;--metric-soft:#eef2ff;">
+                        <div class="metric-top"><span class="metric-icon"><i class="bi bi-people-fill"></i></span><span
+                                class="small-pill">ทั้งหมด</span></div>
+                        <div class="metric-label">นักเรียนในระบบ</div>
+                        <div class="metric-value">{{ total_students|default(0) }}</div>
+                        <div class="metric-foot">จำนวนบัญชีนักเรียนทั้งหมด</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="metric-card" style="--metric-color:#0284c7;--metric-soft:#e0f2fe;">
+                        <div class="metric-top"><span class="metric-icon"><i
+                                    class="bi bi-person-workspace"></i></span><span class="small-pill">ทั้งหมด</span>
+                        </div>
+                        <div class="metric-label">คุณครูในระบบ</div>
+                        <div class="metric-value">{{ total_teachers|default(0) }}</div>
+                        <div class="metric-foot">จำนวนบัญชีคุณครูทั้งหมด</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="metric-card" style="--metric-color:#059669;--metric-soft:#d1fae5;">
+                        <div class="metric-top"><span class="metric-icon"><i
+                                    class="bi bi-person-plus-fill"></i></span><span
+                                class="small-pill">ตามช่วงเวลา</span></div>
+                        <div class="metric-label">เพิ่มนักเรียนใหม่</div>
+                        <div class="metric-value">{{ period_new_students|default(0) }}</div>
+                        <div class="metric-foot">บัญชีที่สร้างในช่วงเวลาที่เลือก</div>
+                    </div>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <div class="metric-card" style="--metric-color:#c2410c;--metric-soft:#ffedd5;">
+                        <div class="metric-top"><span class="metric-icon"><i
+                                    class="bi bi-box-arrow-in-right"></i></span><span
+                                class="small-pill">ตามช่วงเวลา</span></div>
+                        <div class="metric-label">บัญชีที่มี Login ล่าสุด</div>
+                        <div class="metric-value">{{ period_login_accounts|default(0) }}</div>
+                        <div class="metric-foot">ครูและแอดมินที่มี last_login ในช่วงนี้</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="row g-3 mb-3 dashboard-enter dashboard-delay-4">
+            <div class="col-12 col-xl-8">
+                <div class="analytics-card p-3 p-lg-4 h-100">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                        <div>
+                            <h2 class="card-heading"><i class="bi bi-activity me-2"
+                                    style="color:#5b5de6;"></i>กิจกรรมการเข้าสู่ระบบ</h2>
+                            <div class="card-caption">จำนวนบัญชีที่มีเวลาเข้าสู่ระบบล่าสุดในแต่ละช่วง</div>
+                        </div>
+                        <span class="small-pill"><i class="bi bi-bar-chart-line"></i> Login overview</span>
+                    </div>
+                    <div class="chart-wrap"><canvas id="loginActivityChart" aria-label="กราฟกิจกรรมการเข้าสู่ระบบ"
+                            role="img"></canvas></div>
+                    <div class="chart-note mt-3"><i class="bi bi-info-circle me-1"></i>กราฟนี้คำนวณจากฟิลด์
+                        <code>last_login</code> ซึ่งเก็บเวลาเข้าสู่ระบบล่าสุดต่อบัญชี จึงไม่ใช่จำนวน Login ทุกครั้ง
+                        หากต้องการนับทุกเหตุการณ์ต้องมีตาราง Audit Log ที่บันทึกแต่ละครั้ง
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-4">
+                <div class="analytics-card p-3 p-lg-4 h-100">
+                    <div class="mb-3">
+                        <h2 class="card-heading"><i class="bi bi-pie-chart-fill me-2"
+                                style="color:#0e7490;"></i>กลุ่มสาระของคุณครู</h2>
+                        <div class="card-caption">สัดส่วนปัจจุบัน ไม่ได้เปลี่ยนตามตัวกรองวันที่</div>
+                    </div>
+                    <div class="chart-wrap chart-doughnut"><canvas id="teacherDepartmentChart"
+                            aria-label="กราฟสัดส่วนกลุ่มสาระครู" role="img"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="row g-3 mb-4 dashboard-enter dashboard-delay-5">
+            <div class="col-12 col-xl-8">
+                <div class="analytics-card p-3 p-lg-4 h-100">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                        <div>
+                            <h2 class="card-heading">
+                                <i class="bi bi-graph-up-arrow me-2" style="color:#059669;"></i>
+                                การเพิ่มข้อมูลผู้ใช้งาน
+                            </h2>
+                            <div class="card-caption">เปรียบเทียบนักเรียนและคุณครูที่สร้างบัญชีในช่วงเวลาที่เลือก</div>
+                        </div>
+                        <span class="small-pill"><i class="bi bi-people"></i> User growth</span>
+                    </div>
+                    <div class="chart-wrap">
+                        <canvas id="userGrowthChart" aria-label="กราฟการเพิ่มข้อมูลผู้ใช้งาน" role="img">
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-xl-4">
+                <div class="analytics-card p-3 p-lg-4 h-100">
+                    <div class="mb-2">
+                        <h2 class="card-heading"><i class="bi bi-clock-history me-2" style="color:#7c3aed;"></i>บัญชีที่
+                            Login ล่าสุด</h2>
+                        <div class="card-caption">รายการบัญชีที่มี last_login ในช่วงเวลาที่เลือก</div>
+                    </div>
+                    {% if recent_logins %}
+                    {% for item in recent_logins %}
+                    <div class="activity-row">
+                        <div class="d-flex align-items-center gap-2" style="min-width:0;">
+                            <div class="activity-avatar"><i
+                                    class="bi {{ 'bi-shield-lock-fill' if item.role == 'admin' else 'bi-person-fill' }}"></i>
+                            </div>
+                            <div style="min-width:0;">
+                                <div class="activity-name">{{ item.name }}</div>
+                                <div class="activity-meta">{{ 'ผู้ดูแลระบบ' if item.role == 'admin' else 'คุณครู' }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end flex-shrink-0">
+                            <div class="activity-meta fw-semibold">{{ item.last_login.strftime('%d/%m/%Y') }}</div>
+                            <div class="activity-meta">{{ item.last_login.strftime('%H:%M') }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-activity">
+                        <i class="bi bi-calendar2-x fs-2 d-block mb-2"></i>
+                        <div class="fw-semibold">ยังไม่มีข้อมูลในช่วงเวลานี้</div>
+                        <div class="small mt-1">ลองเปลี่ยนตัวกรองวันที่</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    {% include 'components/footer.html' %}
+    <script id="adminDashboardData" type="application/json">
+        {{
+            {
+                "chartLabels": chart_labels|default([]),
+                "loginCounts": login_counts|default([]),
+                "studentCreatedCounts": student_created_counts|default([]),
+                "teacherCreatedCounts": teacher_created_counts|default([]),
+                "departmentLabels": department_labels|default([]),
+                "departmentCounts": department_counts|default([])
+            } | tojson
+        }}
+    </script>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const alertFn =
+                window.showDashboardAlert || window.showAlert;
+
+            const flashMessages = {{ messages| tojson
+        }};
+
+        flashMessages.forEach(([category, rawMessage]) => {
+            const message = String(rawMessage ?? '');
+
+            const isLoginSuccess =
+                message === 'Login_Success' ||
+                message.includes('ยินดีต้อนรับผู้ดูแลระบบ');
+
+            const displayMessage =
+                message === 'Login_Success'
+                    ? 'ยินดีต้อนรับผู้ดูแลระบบ Admin Dashboard'
+                    : message;
+
+            // ==========================================
+            // LOGIN SUCCESS
+            // ==========================================
+            if (isLoginSuccess) {
+                if (typeof window.showAlert === 'function') {
+                    window.showAlert('success', displayMessage);
+
+                } else if (window.Swal) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'เข้าสู่ระบบสำเร็จ!',
+                        text: displayMessage,
+
+                        confirmButtonText: 'ตกลง',
+                        confirmButtonColor: '#4f46e5',
+
+                        customClass: {
+                            popup: 'rounded-4 shadow-lg border-0'
+                        }
+                    });
+
+                } else {
+                    alert(displayMessage);
+                }
+
+                return;
+            }
+
+            // ==========================================
+            // GENERAL FLASH MESSAGE
+            // ==========================================
+            if (typeof alertFn === 'function') {
+                alertFn(category, message);
+                return;
+            }
+
+            if (window.Swal) {
+                const isError =
+                    category === 'danger' ||
+                    category === 'error';
+
+                const isWarning = category === 'warning';
+
+                const icon = isError
+                    ? 'error'
+                    : isWarning
+                        ? 'warning'
+                        : category === 'success'
+                            ? 'success'
+                            : 'info';
+
+                const title = isError
+                    ? 'เกิดข้อผิดพลาด!'
+                    : isWarning
+                        ? 'คำเตือน!'
+                        : category === 'success'
+                            ? 'ดำเนินการสำเร็จ!'
+                            : 'แจ้งเพื่อทราบ';
+
+                Swal.fire({
+                    icon,
+                    title,
+                    text: message,
+
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#4f46e5',
+
+                    customClass: {
+                        popup: 'rounded-4 shadow-lg border-0'
+                    }
+                });
+
+            } else {
+                alert(message);
+            }
+        });
+    });
+    </script>
+    {% endif %}
+    {% endwith %}
+
+</body>
+
+</html>

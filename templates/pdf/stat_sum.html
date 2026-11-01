@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+
+        @page {
+            size: A4 portrait;
+            margin: 10mm;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #0047AB;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #0047AB;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 4px 0 0 0;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            margin-bottom: 15px;
+            border-collapse: collapse;
+        }
+
+        .dashboard-container td {
+            border: none;
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .summary-card {
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px;
+            margin-right: 10px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #0f172a;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .stat-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 6px 2px;
+            border-radius: 6px;
+        }
+
+        .stat-val {
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-pct {
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .chart-box {
+            text-align: center;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 5px;
+        }
+
+        .chart-img {
+            width: 280px;
+            height: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .data-table th {
+            background-color: #0047AB;
+            color: #ffffff;
+            border: 1px solid #003380;
+            padding: 7px 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .data-table td {
+            border: 1px solid #cbd5e1;
+            padding: 6px 4px;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .text-left {
+            text-align: left;
+            padding-left: 10px !important;
+        }
+
+        .bg-even {
+            background-color: #f8fafc;
+        }
+
+        .sign-area {
+            margin-top: 30px;
+            text-align: right;
+            padding-right: 30px;
+        }
+
+        .footer-note {
+            margin-top: 25px;
+            font-size: 10px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 5px;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2>รายงานสรุปสถิติเวลาเรียนภาพรวม</h2>
+        <p>
+            <strong>วิชา:</strong> ({{ id_subject }}) {{ subject_name }} |
+            <strong>ห้องเรียน:</strong> {{ room_list_str }} |
+            <strong>จำนวนคาบทั้งหมด:</strong> {{ total_sessions }} คาบ
+        </p>
+    </div>
+
+    <div class="summary-card mb-3" style="width: 100%; box-sizing: border-box; margin-bottom: 15px;">
+        <div class="card-title"
+            style="font-size: 13px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
+            📌 บทสรุปภาพรวมการเข้าเรียน (Summary)
+        </div>
+
+        <table class="stat-table" style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="width: 20%; padding: 0 3px;">
+                    <div class="stat-box bg-primary-subtle"
+                        style="padding: 10px 4px; text-align: center; border-radius: 8px; background-color: #eff6ff; border: 1px solid #dbeafe;">
+                        <span class="stat-label text-primary"
+                            style="font-size: 11px; font-weight: 600; display: block; color: #1d4ed8;">นักเรียน</span>
+                        <span class="stat-val text-primary"
+                            style="font-size: 18px; font-weight: 700; display: block; margin: 2px 0; color: #1e40af;">
+                            {{ stats.total_students }}
+                        </span>
+                        <span class="stat-pct text-primary opacity-75"
+                            style="font-size: 10px; color: #3b82f6; display: block; font-weight: 500;">คน</span>
+                    </div>
+                </td>
+                <td style="width: 20%; padding: 0 3px;">
+                    <div class="stat-box"
+                        style="background-color: #f0fdf4; padding: 10px 4px; text-align: center; border-radius: 8px;">
+                        <span class="stat-label"
+                            style="color: #16a34a; font-size: 11px; font-weight: 600; display: block;">มาเรียน</span>
+                        <span class="stat-val"
+                            style="color: #16a34a; font-size: 18px; font-weight: bold; display: block; margin: 2px 0;">{{
+                            stats.present }}</span>
+                        <span class="stat-pct" style="font-size: 10px; color: #16a34a;">คิดเป็น {{ stats.pct_present
+                            }}%</span>
+                    </div>
+                </td>
+                <td style="width: 20%; padding: 0 3px;">
+                    <div class="stat-box"
+                        style="background-color: #fefce8; padding: 10px 4px; text-align: center; border-radius: 8px;">
+                        <span class="stat-label"
+                            style="color: #ca8a04; font-size: 11px; font-weight: 600; display: block;">มาสาย</span>
+                        <span class="stat-val"
+                            style="color: #ca8a04; font-size: 18px; font-weight: bold; display: block; margin: 2px 0;">{{
+                            stats.late }}</span>
+                        <span class="stat-pct" style="font-size: 10px; color: #ca8a04;">คิดเป็น {{ stats.pct_late
+                            }}%</span>
+                    </div>
+                </td>
+                <td style="width: 20%; padding: 0 3px;">
+                    <div class="stat-box"
+                        style="background-color: #ecfeff; padding: 10px 4px; text-align: center; border-radius: 8px;">
+                        <span class="stat-label"
+                            style="color: #0891b2; font-size: 11px; font-weight: 600; display: block;">ลา</span>
+                        <span class="stat-val"
+                            style="color: #0891b2; font-size: 18px; font-weight: bold; display: block; margin: 2px 0;">{{
+                            stats.leave }}</span>
+                        <span class="stat-pct" style="font-size: 10px; color: #0891b2;">คิดเป็น {{ stats.pct_leave
+                            }}%</span>
+                    </div>
+                </td>
+                <td style="width: 20%; padding: 0 3px;">
+                    <div class="stat-box"
+                        style="background-color: #fef2f2; padding: 10px 4px; text-align: center; border-radius: 8px;">
+                        <span class="stat-label"
+                            style="color: #dc2626; font-size: 11px; font-weight: 600; display: block;">ขาดเรียน</span>
+                        <span class="stat-val"
+                            style="color: #dc2626; font-size: 18px; font-weight: bold; display: block; margin: 2px 0;">{{
+                            stats.absent }}</span>
+                        <span class="stat-pct" style="font-size: 10px; color: #dc2626;">คิดเป็น {{ stats.pct_absent
+                            }}%</span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
+    <div class="chart-box"
+        style="width: 100%; text-align: center; border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; background-color: #ffffff; box-sizing: border-box; margin-bottom: 20px;">
+        <img class="chart-img" src="{{ chart_url }}" style="width: 480px; height: auto;"
+            alt="Attendance Doughnut Chart" />
+    </div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th style="width: 8%;">เลขที่</th>
+                <th style="width: 15%;">รหัสนักเรียน</th>
+                <th>ชื่อ - นามสกุล</th>
+                <th style="width: 10%;">มา (ครั้ง)</th>
+                <th style="width: 10%;">สาย (ครั้ง)</th>
+                <th style="width: 10%;">ลา (ครั้ง)</th>
+                <th style="width: 10%;">ขาด (ครั้ง)</th>
+                <th style="width: 12%;">คิดเป็น %</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for std in student_stats %}
+            {% set total_check = std.present + std.late + std.leave + std.absent %}
+
+            {% set rate = (((std.present + std.late) / total_check) * 100)|round(0) if total_check > 0 else 0 %}
+
+            <tr class="{% if loop.index % 2 == 0 %}bg-even{% endif %}">
+                <td>{{ std.student_number or '-' }}</td>
+                <td style="font-weight: bold; color: #334155;">{{ std.student_id }}</td>
+                <td class="text-left">{{ std.full_name }}</td>
+                <td style="color: #16a34a; font-weight: bold;">{{ std.present }}</td>
+                <td style="color: #ca8a04; font-weight: bold;">{{ std.late }}</td>
+                <td style="color: #0891b2; font-weight: bold;">{{ std.leave }}</td>
+                <td style="color: #dc2626; font-weight: bold;">{{ std.absent }}</td>
+                <td style="font-weight: bold; color: {% if rate >= 80 %}#16a34a{% else %}#dc2626{% endif %};">
+                    {{ rate }}%
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="sign-area">
+        <div style="margin-bottom: 5px;">ลงชื่อ......................................................ครูผู้สอน</div>
+        <div style="font-weight: bold; color: #334155;">
+            ( {{ teacher.full_name if teacher and teacher.full_name else '..........................................' }}
+            )
+        </div>
+    </div>
+
+    <div class="footer-note">
+        รายงานฉบับนี้สร้างโดยระบบอัตโนมัติเมื่อวันที่ {{ print_date }}
+    </div>
+</body>
+
+</html>

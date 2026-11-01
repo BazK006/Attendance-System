@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แก้ไขข้อมูลส่วนตัว</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/person_check.svg') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/edit_profile.css') }}">
+    <script src="{{ url_for('static', filename='js/edit_profile.js') }}"></script>
+</head>
+
+<body>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+
+                <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                    <div class="card-header border-0 bg-white pt-4 pb-0 px-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <a href="{{ url_for('dashboard.dashboard') }}"
+                                class="btn btn-light rounded-circle shadow-none me-3"
+                                style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                                <i class="bi bi-arrow-left fs-5 text-secondary"></i>
+                            </a>
+                            <h4 class="mb-0 fw-bold text-theme-dark">
+                                <i class="bi bi-person-lines-fill me-2" style="color: #4e73df;"></i>แก้ไขข้อมูลส่วนตัว
+                            </h4>
+                        </div>
+                        <hr style="border-color: #f1f5f9;">
+                    </div>
+
+                    <div class="card-body px-4 pb-4">
+                        <form id="editProfileForm">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                            <div class="mb-4">
+                                <label
+                                    class="form-label fw-semibold text-muted small mb-2 d-flex align-items-center gap-2">
+                                    <i class="bi bi-person-badge-fill text-secondary fs-6"></i> รหัสประจำตัวครู
+                                </label>
+                                <div class="input-group custom-input-group opacity-75">
+                                    <input type="text"
+                                        class="form-control form-control-lg bg-light border-0 shadow-none ps-3 text-muted"
+                                        value="{{ teacher.teacher_id if teacher and teacher.teacher_id else (teacher.id if teacher else '-') }}"
+                                        readonly disabled style="border-radius: 12px; cursor: not-allowed;">
+                                </div>
+                                <div class="form-text text-muted" style="font-size: 0.75rem; margin-top: 4px;">
+                                    รหัสประจำตัวไม่สามารถเปลี่ยนแปลงได้</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label
+                                    class="form-label fw-semibold text-muted small mb-2 d-flex align-items-center gap-2">
+                                    <i class="bi bi-person-badge text-primary fs-6"></i> ชื่อ-นามสกุล
+                                </label>
+                                <input type="text"
+                                    class="form-control form-control-lg bg-light border-0 shadow-none custom-focus ps-3"
+                                    name="full_name" value="{{ teacher.full_name or '' }}" required
+                                    placeholder="กรอกชื่อ-นามสกุล" style="border-radius: 12px;">
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label for="teacher-email"
+                                        class="form-label fw-semibold text-muted small mb-0 d-flex align-items-center gap-2">
+                                        <i class="bi bi-envelope-fill text-info fs-6"></i>
+                                        อีเมล
+                                    </label>
+
+                                    {% if is_google_user %}
+                                    <span
+                                        class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill"
+                                        style="font-size: 0.65rem; padding: 0.2rem 0.5rem;">
+                                        <i class="bi bi-lock-fill me-1"></i>
+                                        ล็อก (Google Account)
+                                    </span>
+                                    {% endif %}
+                                </div>
+
+                                <input type="email" id="teacher-email" class="form-control form-control-lg bg-light border-0 shadow-none ps-3
+            {% if is_google_user %}text-muted{% else %}custom-focus{% endif %}" name="email"
+                                    value="{{ teacher.email or '' }}" {% if is_google_user %} readonly
+                                    aria-readonly="true" style="border-radius: 12px; cursor: not-allowed;"
+                                    title="อีเมลเชื่อมต่อกับ Google ไม่สามารถแก้ไขได้" {% else %} required
+                                    maxlength="120" style="border-radius: 12px;" title="กรอกอีเมลของคุณ" {% endif %}
+                                    placeholder="name@example.com" autocomplete="email">
+                            </div>
+
+                            <div class="mb-4">
+                                <label
+                                    class="form-label fw-semibold text-muted small mb-2 d-flex align-items-center gap-2">
+                                    <i class="bi bi-bookmark-star text-purple fs-6" style="color: #9333ea;"></i>
+                                    กลุ่มสาระการเรียนรู้
+                                </label>
+                                <input type="text"
+                                    class="form-control form-control-lg bg-light border-0 shadow-none custom-focus ps-3"
+                                    name="department" value="{{ teacher.department or '' }}"
+                                    placeholder="เช่น วิทยาศาสตร์และเทคโนโลยี" style="border-radius: 12px;">
+                            </div>
+
+                            <div class="mb-5">
+                                <label
+                                    class="form-label fw-semibold text-muted small mb-2 d-flex align-items-center gap-2">
+                                    <i class="bi bi-building text-success fs-6"></i> สถานศึกษา
+                                </label>
+                                <input type="text"
+                                    class="form-control form-control-lg bg-light border-0 shadow-none custom-focus ps-3"
+                                    name="school_name" value="{{ teacher.school_name or '' }}"
+                                    placeholder="ชื่อโรงเรียน / สถานศึกษา" style="border-radius: 12px;">
+                            </div>
+
+                            <div class="d-flex gap-3 mt-4">
+                                <a href="{{ url_for('dashboard.dashboard') }}"
+                                    class="btn btn-light w-50 py-3 fw-bold fs-6 shadow-sm d-flex align-items-center justify-content-center gap-2 text-secondary btn-cancel-custom"
+                                    style="border-radius: 14px; background-color: #f1f5f9; border: none; text-decoration: none; transition: all 0.2s ease;">
+                                    <span>ยกเลิก</span>
+                                </a>
+
+                                <button type="submit"
+                                    class="btn btn-modern-gradient w-50 py-3 fw-bold fs-6 shadow-sm d-flex align-items-center justify-content-center gap-2"
+                                    style="border-radius: 14px;">
+                                    <i class="bi bi-check2-circle fs-5"></i>
+                                    <span>บันทึกการแก้ไข</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('editProfileForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            Swal.fire({
+                title: '<span style="font-family: \'Sarabun\', sans-serif;">ยืนยันการแก้ไขข้อมูล?</span>',
+                html: '<span style="font-family: \'Sarabun\', sans-serif;">ระบบจะทำการอัปเดตข้อมูลโปรไฟล์ของคุณ</span>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4e73df',
+                cancelButtonColor: '#f1f5f9',
+                confirmButtonText: '<span style="font-family: \'Sarabun\', sans-serif; font-weight: 600;">ใช่, บันทึกเลย!</span>',
+                cancelButtonText: '<span style="font-family: \'Sarabun\', sans-serif; font-weight: 600; color: #475569;">ยกเลิก</span>',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'rounded-4'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    const formData = new FormData(this);
+
+                    fetch("{{ url_for('teacher.edit_profile') }}", {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '<span style="font-family: \'Sarabun\', sans-serif;">บันทึกสำเร็จ!</span>',
+                                    html: `<span style="font-family: 'Sarabun', sans-serif;">ข้อมูลของ <b>${data.teacher_name}</b> ถูก${data.message}</span>`,
+                                    showConfirmButton: false,
+                                    timer: false,
+                                    customClass: {
+                                        popup: 'rounded-4'
+                                    }
+                                }).then(() => {
+                                    window.location.href = "{{ url_for('dashboard.dashboard') }}";
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: '<span style="font-family: \'Sarabun\', sans-serif;">เกิดข้อผิดพลาด!</span>',
+                                html: '<span style="font-family: \'Sarabun\', sans-serif;">ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง</span>',
+                                confirmButtonColor: '#4e73df',
+                                customClass: { popup: 'rounded-4' }
+                            });
+                        });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

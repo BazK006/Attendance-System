@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+       
+    <meta charset="UTF-8">
+       
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>Admin Dashboard Pannel - ระบบเช็คชื่อนักเรียน</title>
+
+       
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Sarabun:wght@300;500&display=swap"  
+              rel="stylesheet">
+       
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+       
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+       
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+       
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+       
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+       
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+       
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+       
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+
+<body>
+        {% include 'components/admin_header.html' %}
+
+        <div class="container py-4 py-md-5">
+                <div class="row align-items-center mb-5 gy-3">
+                        <div class="col-12 col-md-7">
+                                <h2 class="fw-bold text-dark mb-2">
+                                        <i class="bi bi-shield-lock-fill text-primary me-2"></i>
+                                        Admin Dashboard Panel
+                                    </h2>
+
+                                <p class="text-muted mb-0">
+                                        ระบบจัดการรายชื่อและอัปเดตสถานะของผู้ใช้งานทั้งหมดในระบบ
+                                    </p>
+                            </div>
+
+                        <div class="col-12 col-md-5 d-flex justify-content-md-end">
+                                <ul class="nav nav-pills custom-pill-box w-100 w-md-auto justify-content-center"
+                    id="managementTab"                     role="tablist">
+
+                                        <li class="nav-item flex-fill flex-md-none" role="presentation">
+                                                <button class="nav-link active w-100 px-4 py-2" id="students-tab"
+                            data-bs-toggle="tab"                             data-bs-target="#students-pane"
+                            type="button" role="tab">
+                                                        ข้อมูลนักเรียน
+                                                    </button>
+                                            </li>
+
+                                        <li class="nav-item flex-fill flex-md-none" role="presentation">
+                                                <button class="nav-link w-100 px-4 py-2" id="teachers-tab"
+                            data-bs-toggle="tab"                             data-bs-target="#teachers-pane"
+                            type="button" role="tab">
+                                                        ข้อมูลคุณครู
+                                                    </button>
+                                            </li>
+
+                                    </ul>
+                            </div>
+                    </div>
+
+                <div class="tab-content" id="managementTabContent">
+
+                        <div class="tab-pane fade show active" id="students-pane" role="tabpanel">
+                                <div
+                    class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 gap-3">
+                                        <h4 class="fw-bold mb-0 text-dark">
+                                                <i class="bi bi-people-fill me-2"                            
+                            style="background-color: #6366f1; color: white; padding: 8px; border-radius: 70%;"></i>
+                                                รายชื่อนักเรียนทั้งหมด
+                                            </h4>
+
+                                        <div class="input-group search-box-custom" style="max-width: 450px;">
+                                                <span class="input-group-text bg-white border-end-0 text-muted px-2.5">
+                                                        <i class="bi bi-search" style="font-size: 0.85rem;"></i>
+                                                    </span>
+
+                                                <input type="text" id="searchStudentInput"
+                            class="form-control border-start-0 ps-0 pe-5"                            
+                            placeholder="ค้นหาชื่อ หรือรหัสนักเรียน..." style="font-size: 0.9rem;">
+
+                                                <button                            
+                            class="btn position-absolute end-0 top-50 translate-middle-y text-danger border-0 bg-transparent btn-clear-search-custom"
+                                                        type="button" id="clearStudentSearch"                          
+                              style="display: none; z-index: 5; padding-right: 12px;">
+                                                        <i class="bi bi-x-lg" style="font-size: 0.85rem;"></i>
+                                                    </button>
+                                            </div>
+
+                                        <div class="d-flex flex-column flex-sm-row gap-2">
+                                                <div class="input-group">
+                                                        <select id="classFilter"
+                                class="form-select filter-select rounded-3"                                
+                                style="min-width: 160px;">
+                                                                <option value="all">
+                                                                        ทั้งหมด
+                                                                    </option>
+                                                            </select>
+                                                    </div>
+
+                                                <button                            
+                            class="btn px-4 py-2 rounded-3 fw-bold shadow-sm flex-shrink-0 text-white btn-add-student"  
+                                                      data-bs-toggle="modal" data-bs-target="#addStudentModal">
+                                                        <i class="bi bi-person-plus-fill me-2"></i>
+                                                        เพิ่มข้อมูลนักเรียนใหม่
+                                                    </button>
+                                            </div>
+                                    </div>
+
+                                <div class="card border-0 p-3 stat-card-glass border-left-purple">
+                                        <div class="table-responsive">
+                                                <table class="table table-hover custom-table mb-0">
+                                                        <thead>
+                                                                <tr class="text-muted small text-norwap">
+                                                                        <th class="ps-4">เลขที่</th>
+                                                                        <th>รหัสนักเรียน</th>
+                                                                        <th>ชื่อ-นามสกุล</th>
+                                                                        <th class="text-start">สถานศึกษา</th>
+                                                                        <th>ชั้น/ห้อง</th>
+                                                                        <th class="text-center">สร้างเมื่อ</th>
+                                                                        <th class="text-center">จัดการ</th>
+                                                                    </tr>
+                                                            </thead>
+                                                        <tbody id="studentTableBody">
+                                                                {% if students %}
+                                                                {% for student in students %}
+
+                                                                {% set short_level =
+                                                                student.education_level | replace('มัธยมศึกษา', 'ม') |
+                                replace('ประถมศึกษา', 'ป') |
+                                                                replace('มัธยม', 'ม') | replace('ประถม', 'ป') %}
+
+                                                                {% set class_display =
+                                                                short_level ~ '.' ~ student.student_level ~ '/' ~
+                                student.student_room %}
+
+                                                                <tr id="row-{{ student.student_id }}"
+                                    class="student-row"                                    
+                                    data-class="{{ class_display }}">
+                                                                        <td class="fw-bold text-secondary ps-4">
+                                                                                {{ student.student_number }}
+                                                                            </td>
+
+                                                                        <td>
+                                                                                <span
+                                            class="badge border fw-semibold px-3 py-2" style="background-color: rgba(99, 102, 241, 0.1); 
+                                color: #6366f1; 
+                                border-color: rgba(99, 102, 241, 0.3) !important; 
+                                border-radius: 8px;">
+                                                                                        {{ student.student_id }}
+                                                                                    </span>
+                                                                            </td>
+
+                                                                        <td class="fw-semibold text-dark">
+                                                                                {{ student.full_name }}
+                                                                            </td>
+
+                                                                        <td class="text-muted small">
+                                                                                {{ student.school_name if
+                                        student.school_name else "-" }}
+                                                                            </td>
+
+                                                                        <td>
+                                                                                <span                                  
+                                                     
+                                            class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill fw-bold"
+                                                                                        style="letter-spacing: 0.5px;">
+                                                                                        {{ class_display }}
+                                                                                    </span>
+                                                                            </td>
+
+                                                                        <td class="text-center">
+                                                                                <span                                  
+                                                     
+                                            class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-3 fw-medium"
+                                                                                        style="letter-spacing: 0.3px;">
+                                                                                        {{
+                                            format_thai_date(student.created_at) ~ ' ' ~
+                                                                                       
+                                            format_thai_time(student.created_at)
+                                                                                        if student.created_at else "-"
+                                                                                        }}
+                                                                                    </span>
+                                                                            </td>
+
+                                                                        <td class="text-center">
+                                                                                <div
+                                            class="d-flex justify-content-center gap-2">
+                                                                                        <button
+                                                class="btn btn-action-edit" data-bs-toggle="modal"                      
+                                                                         
+                                                data-bs-target="#editStudentModal{{ student.id }}">
+                                                                                                <i
+                                                    class="bi bi-pencil-square"></i>
+                                                                                            </button>
+
+                                                                                        <button
+                                                class="btn btn-action-delete delete-btn"                                
+                                                                data-name="{{ student.full_name }}"                    
+                                                                           
+                                                data-url="{{ url_for('admin.delete_student', id=student.id) }}">
+                                                                                                <i
+                                                    class="bi bi-trash-fill"></i>
+                                                                                            </button>
+                                                                                    </div>
+                                                                            </td>
+                                                                    </tr>
+                                                                {% endfor %}
+                                                                <tr id="studentStatusRow" style="display: none;">
+                                                                        <td colspan="7" class="text-center py-5">
+
+                                                                                <div id="studentSearchLoading"
+                                            style="display: none;">
+                                                                                        <div class="spinner-border mb-2"
+                                                                                               
+                                                style="color: #6366f1; width: 2.2rem; height: 2.2rem; border-width: 0.22em; animation: spinner-border .75s linear infinite;"
+                                                                                                role="status">
+                                                                                                <span
+                                                    class="visually-hidden">กำลังค้นหา...</span>
+                                                                                            </div>
+                                                                                        <div
+                                                class="text-muted small fw-medium" style="letter-spacing: 0.5px;">
+                                                                                               
+                                                กำลังค้นหาข้อมูลนักเรียน...</div>
+                                                                                    </div>
+
+                                                                                <div id="studentNoData"
+                                            style="display: none;">
+                                                                                        <i
+                                                class="bi bi-search fs-1 d-block mb-2 opacity-50"                      
+                                                                          style="color: #6366f1;"></i>
+                                                                                        <span                          
+                                                                     
+                                                class="fw-medium text-muted">ไม่พบข้อมูลรายชื่อนักเรียนที่คุณค้นหา</span>
+                                                                                    </div>
+
+                                                                            </td>
+                                                                    </tr>
+                                                                {% else %}
+                                                                <tr>
+                                                                        <td colspan="7"
+                                        class="text-center py-5 text-muted">
+                                                                                <i
+                                            class="bi bi-inbox fs-1 d-block mb-2 opacity-50"
+                                            style="color: #6366f1;"></i>
+                                                                                ไม่มีข้อมูลนักเรียนในระบบ
+                                                                            </td>
+                                                                    </tr>
+                                                                {% endif %}
+                                                            </tbody>
+                                                    </table>
+                                            </div>
+                                    </div>
+                            </div>
+
+                        <div class="tab-pane fade" id="teachers-pane" role="tabpanel">
+                                <div
+                    class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 gap-3">
+                                        <h4 class="fw-bold mb-0 text-dark">
+                                                <i class="bi bi-person-workspace me-2"                            
+                            style="background-color: #0ea5e9; color: white; padding: 8px; border-radius: 85%;"></i>
+                                                รายชื่อคุณครู
+                                            </h4>
+
+                                        <div class="input-group search-box-custom position-relative"
+                        style="max-width: 450px;">
+                                                <span class="input-group-text bg-white border-end-0 text-muted px-2.5">
+                                                        <i class="bi bi-search" style="font-size: 0.85rem;"></i>
+                                                    </span>
+
+                                                <input type="text" id="searchTeacherInput"
+                            class="form-control border-start-0 ps-0 pe-5"                            
+                            placeholder="ค้นหาชื่อ หรือรหัสคุณครู..." style="font-size: 0.9rem;">
+
+                                                <button                            
+                            class="btn position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent btn-clear-search-custom "
+                                                        type="button" id="clearTeacherSearch"                          
+                              style="display: none; z-index: 5; padding-right: 15px;">
+                                                        <i class="bi bi-x-lg" style="font-size: 0.85rem;"></i>
+                                                    </button>
+                                            </div>
+
+                                        <button
+                        class="btn px-4 py-2 rounded-3 fw-bold shadow-sm flex-shrink-0 text-white btn-add-teacher"      
+                                          data-bs-toggle="modal" data-bs-target="#addTeacherModal">
+                                                <i class="bi bi-person-plus-fill me-2"></i>
+                                                เพิ่มข้อมูลคุณครูใหม่
+                                            </button>
+                                    </div>
+
+                                <div class="card border-0 p-3 stat-card-glass border-left-blue">
+                                        <div class="table-responsive">
+                                                <table class="table table-hover custom-table mb-0">
+                                                        <thead>
+                                                                <tr class="text-muted small">
+                                                                        <th class="ps-4">รหัสประจำตัว</th>
+                                                                        <th>ชื่อ-นามสกุล</th>
+                                                                        <th>สถานศึกษา</th>
+                                                                        <th>อีเมล</th>
+                                                                        <th class="text-start">กลุ่มสาระการเรียนรู้</th>
+                                                                        <th>สิทธิ์ระบบ</th>
+                                                                        <th class="text-center">เข้าใช้งานล่าสุด</th>
+                                                                        <th class="text-center">สร้างเมื่อ</th>
+                                                                        <th class="text-center">จัดการ</th>
+                                                                    </tr>
+                                                            </thead>
+
+                                                        <tbody id="teacherTableBody">
+                                                                <tr id="teacherStatusRow" style="display: none;">
+                                                                        <td colspan="9" class="text-center py-5">
+                                                                                <div id="teacherSearchLoading"
+                                            style="display: none;">
+                                                                                        <div
+                                                class="spinner-border mb-2 teacher-spin-fixed"                          
+                                                                     
+                                                style="color: #0ea5e9; width: 2.2rem; height: 2.2rem; border-width: 0.22em;"
+                                                                                                role="status">
+                                                                                                <span
+                                                    class="visually-hidden">กำลังค้นหา...</span>
+                                                                                            </div>
+                                                                                        <div
+                                                class="text-muted small fw-medium" style="letter-spacing: 0.5px;">
+                                                                                               
+                                                กำลังค้นหาข้อมูลคุณครู...</div>
+                                                                                    </div>
+
+                                                                                <div id="teacherNoData"
+                                            style="display: none;">
+                                                                                        <i
+                                                class="bi bi-search fs-1 d-block mb-2 opacity-50"                      
+                                                                          style="color: #0ea5e9;"></i>
+                                                                                        <span                          
+                                                                     
+                                                class="fw-medium text-muted">ไม่พบข้อมูลรายชื่อคุณครูที่คุณค้นหา</span>
+                                                                                    </div>
+
+                                                                            </td>
+                                                                    </tr>
+
+                                                                {% if teachers %}
+                                                                {% for teacher in teachers %}
+                                                                <tr class="teacher-row">
+                                                                        <td class="fw-bold text-primary ps-4">
+                                                                                <span
+                                            class="badge border fw-medium px-3 py-2" style="background-color: rgba(14, 165, 233, 0.1); 
+                                                color: #0ea5e9; 
+                                                border-color: rgba(14, 165, 233, 0.25) !important; 
+                                                border-radius: 8px;">
+                                                                                        {{ teacher.teacher_id }}
+                                                                                    </span>
+                                                                            </td>
+
+                                                                        <td class="fw-semibold text-dark text-nowrap">
+                                                                                {{ teacher.full_name }}
+                                                                            </td>
+
+                                                                        <td class="text-muted small text-nowrap">
+                                                                                {{ teacher.school_name if
+                                        teacher.school_name else "-" }}
+                                                                            </td>
+
+                                                                        <td class="text-muted">
+                                                                                {{ teacher.email }}
+                                                                            </td>
+
+                                                                        <td>
+                                                                                <span
+                                            class="text-primary fw-medium text-nowrap">
+                                                                                        {{ teacher.department if
+                                            teacher.department else "-" }}
+                                                                                    </span>
+                                                                            </td>
+
+                                                                        <td>
+                                                                                <span
+                                            class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill">
+                                                                                        {{ 'คุณครู' if teacher.role ==
+                                            'teacher' else teacher.role }}
+                                                                                    </span>
+                                                                            </td>
+
+                                                                        <td class="text-center small">
+                                                                                {% if teacher.last_login %}
+                                                                                <span                                  
+                                                     
+                                            class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-3 fw-medium">
+                                                                                        {{
+                                            format_thai_date(teacher.last_login) }} {{
+                                                                                       
+                                            format_thai_time(teacher.last_login) }}
+                                                                                    </span>
+                                                                                {% else %}
+                                                                                <span class="text-muted">-</span>
+                                                                                {% endif %}
+                                                                            </td>
+
+                                                                        <td class="text-center small text-secondary">
+                                                                                {% if teacher.created_at %}
+                                                                                <span                                  
+                                                     
+                                            class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-3 fw-medium">
+                                                                                        {{
+                                            format_thai_date(teacher.created_at) }} {{
+                                                                                       
+                                            format_thai_time(teacher.created_at) }}
+                                                                                    </span>
+                                                                                {% else %}
+                                                                                -
+                                                                                {% endif %}
+                                                                            </td>
+
+                                                                        <td class="text-center">
+                                                                                <div
+                                            class="d-flex justify-content-center gap-2">
+                                                                                        <button
+                                                class="btn btn-action-edit" data-bs-toggle="modal"                      
+                                                                         
+                                                data-bs-target="#editTeacherModal{{ teacher.id }}">
+                                                                                                <i
+                                                    class="bi bi-pencil-square"></i>
+                                                                                            </button>
+
+                                                                                        <button
+                                                class="btn btn-action-delete delete-btn"                                
+                                                                data-name="{{ teacher.full_name }}"                    
+                                                                           
+                                                data-url="{{ url_for('admin.delete_teacher', id=teacher.id) }}">
+                                                                                                <i
+                                                    class="bi bi-trash-fill"></i>
+                                                                                            </button>
+                                                                                    </div>
+                                                                            </td>
+                                                                    </tr>
+                                                                {% endfor %}
+
+                                                                {% else %}
+                                                                <tr id="teacherEmptyRow">
+                                                                        <td colspan="9"
+                                        class="text-center py-5 text-muted">
+                                                                                <i
+                                            class="bi bi-inbox fs-1 d-block mb-2 opacity-50"
+                                            style="color: #0ea5e9;"></i>
+                                                                                ไม่มีข้อมูลคุณครูในระบบ
+                                                                            </td>
+                                                                    </tr>
+                                                                {% endif %}
+                                                            </tbody>
+                                                    </table>
+                                            </div>
+                                    </div>
+                            </div>
+
+                    </div>
+            </div>
+
+        <!-- แก้ไขข้อมูลนักเรียน -->
+        {% if students %}
+        {% for student in students %}
+        <div class="modal fade" id="editStudentModal{{ student.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+                                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                                        <h5 class="fw-bold text-dark">
+                                                <i class="bi bi-pencil-square text-primary me-2"></i>
+                                                แก้ไขข้อมูลนักเรียน
+                                            </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                <form action="{{ url_for('admin.edit_student', id=student.id) }}" method="POST">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <div class="modal-body p-4">
+                                                <div class="mb-3">
+                                                        <label
+                                class="form-label small fw-bold text-secondary">ชื่อ-นามสกุล</label>
+                                                        <input type="text" name="full_name" class="form-control"
+                                value="{{ student.full_name }}"                                 required>
+                                                    </div>
+                                                <div class="row g-3 mb-3">
+                                                        <div class="col-7">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">รหัสนักเรียน</label>
+                                                                <input type="text" name="student_id"
+                                    class="form-control"                                    
+                                    value="{{ student.student_id }}" required>
+                                                            </div>
+                                                        <div class="col-5">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">เลขที่</label>
+                                                                <input type="number" name="student_number"
+                                    class="form-control"                                    
+                                    value="{{ student.student_number }}" required>
+                                                            </div>
+                                                    </div>
+
+                                                <div class="row g-3 mb-3">
+                                                        <div class="col-5">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">ระดับชั้น</label>
+                                                                <div class="position-relative">
+                                                                        <select name="education_level"
+                                        id="edit_education_level"                                        
+                                        class="form-select custom-select-hide pe-4" style="background-image: none;">
+                                                                                <option value="มัธยมศึกษา" {% if
+                                            student.education_level in ['ม', 'มัธยมศึกษา'                              
+                                                          , 'มัธยม' ] %}selected {% endif %}>
+                                                                                        มัธยมศึกษา (ม.)
+                                                                                    </option>
+
+                                                                                <option value="ประถมศึกษา" {% if
+                                            student.education_level in ['ป', 'ประถมศึกษา'                              
+                                                          , 'ประถม' ] %}selected{% endif %}>
+                                                                                        ประถมศึกษา (ป.)
+                                                                                    </option>
+                                                                            </select>
+                                                                        <i
+                                        class="bi bi-chevron-down select-chevron-icon position-absolute top-50 end-0 translate-middle-y me-3 text-dark"
+                                                                                style="pointer-events: none;"></i>
+                                                                    </div>
+                                                            </div>
+
+                                                        <div class="col-3">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">ระดับชั้น</label>
+                                                                <input type="text" name="student_level"
+                                    class="form-control"                                    
+                                    value="{{ student.student_level }}" required>
+                                                            </div>
+
+                                                        <div class="col-4">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">ห้อง</label>
+                                                                <input type="text" name="student_room"
+                                    class="form-control"                                    
+                                    value="{{ student.student_room }}" required>
+                                                            </div>
+                                                    </div>
+
+                                                <div class="mb-2">
+                                                        <label class="form-label small fw-bold text-secondary">
+                                                                ชื่อสถานศึกษา
+                                                            </label>
+                                                        <input type="text" name="school_name" class="form-control"      
+                                                         
+                                value="{{ student.school_name if student.school_name else 'ไม่ระบุสถานศึกษา' }}"        
+                                                        required>
+                                                    </div>
+                                            </div>
+                                        <div class="modal-footer border-top-0 pt-0 pb-4 px-4 gap-2">
+                                                <button type="button" class="btn btn-light px-4 py-2"                  
+                                      style="border-radius: 12px; font-weight: 500;" data-bs-dismiss="modal">
+                                                        ยกเลิก
+                                                    </button>
+
+                                                <button type="submit" class="btn btn-primary px-4 py-2 fw-bold"
+                            style="border-radius: 12px;">
+                                                        บันทึกการแก้ไขข้อมูลนักเรียน
+                                                    </button>
+                                            </div>
+                                    </form>
+                            </div>
+                    </div>
+            </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- แก้ไขข้อมูลครู -->
+        {% if teachers %}
+        {% for teacher in teachers %}
+        <div class="modal fade" id="editTeacherModal{{ teacher.id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+                                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                                        <h5 class="fw-bold text-dark">
+                                                <i class="bi bi-pencil-square text-primary me-2"></i>
+                                                แก้ไขข้อมูลคุณครู
+                                            </h5>
+
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal">
+                                            </button>
+                                    </div>
+
+                                <form action="{{ url_for('admin.edit_teacher', id=teacher.id) }}" method="POST">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <div class="modal-body p-4">
+                                                <div class="mb-3">
+                                                        <label
+                                class="form-label small fw-bold text-secondary">ชื่อ-นามสกุล</label>
+                                                        <input type="text" name="full_name" class="form-control"
+                                value="{{ teacher.full_name }}"                                 required>
+                                                    </div>
+
+                                                <div class="row g-3 mb-3">
+                                                        <div class="col-6">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">รหัสประจำตัว</label>
+                                                                <input type="text" name="teacher_id"
+                                    class="form-control"                                    
+                                    value="{{ teacher.teacher_id }}" required>
+                                                            </div>
+
+                                                        <div class="col-6">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">กลุ่มสาระการเรียนรู้</label>
+                                                                <input type="text" name="department"
+                                    class="form-control"                                    
+                                    value="{{ teacher.department if teacher.department else '' }}">
+                                                            </div>
+                                                    </div>
+
+                                                <div class="mb-3">
+                                                        <label
+                                class="form-label small fw-bold text-secondary">อีเมลใช้งาน</label>
+                                                        <input type="email" name="email" class="form-control"
+                                value="{{ teacher.email }}" required>
+                                                    </div>
+
+                                                <div class="mb-3">
+                                                        <label
+                                class="form-label small fw-bold text-secondary">ชื่อสถานศึกษา</label>
+                                                        <input type="text" name="school_name" class="form-control"      
+                                                         
+                                value="{{ teacher.school_name if teacher.school_name else 'ไม่ระบุสถานศึกษา' }}"        
+                                                        required>
+                                                    </div>
+
+                                                <div class="mb-3">
+                                                        <label class="form-label small fw-bold text-secondary">
+                                                                รหัสผ่านใหม่ (ปล่อยว่างถ้าไม่เปลี่ยน)
+                                                            </label>
+                                                        <div class="position-relative">
+                                                                <input type="password" name="password"
+                                    id="edit_password_{{ teacher.id }}"                                    
+                                    class="form-control pe-5" placeholder="รหัสผ่านใหม่">
+
+                                                                <button                                    
+                                    class="btn position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent toggle-password text-muted"
+                                                                        type="button"
+                                    data-target="edit_password_{{ teacher.id }}">
+                                                                        <i class="bi bi-eye-slash"></i>
+                                                                    </button>
+                                                            </div>
+                                                    </div>
+
+                                                <div class="mb-3">
+                                                        <label class="form-label small fw-bold text-secondary">
+                                                                ยืนยันรหัสผ่านใหม่
+                                                            </label>
+                                                        <div class="position-relative">
+                                                                <input type="password" name="confirm_password"          
+                                                              id="edit_confirm_password_{{ teacher.id }}"
+                                    class="form-control pe-5"                                    
+                                    placeholder="ยืนยันรหัสผ่านใหม่อีกครั้ง">
+
+                                                                <button                                    
+                                    class="btn position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent toggle-password text-muted"
+                                                                        type="button"
+                                    data-target="edit_confirm_password_{{ teacher.id }}">
+                                                                        <i class="bi bi-eye-slash"></i>
+                                                                    </button>
+                                                            </div>
+                                                    </div>
+
+                                            </div>
+
+                                        <div class="modal-footer border-top-0 pt-0 pb-4 px-4 gap-2">
+                                                <button type="button" class="btn btn-light px-4 py-2"                  
+                                      style="border-radius: 12px; font-weight: 500;" data-bs-dismiss="modal">
+                                                        ยกเลิก
+                                                    </button>
+
+                                                <button type="submit" class="btn btn-primary px-4 py-2 fw-bold"
+                            style="border-radius: 12px;">
+                                                        บันทึกการแก้ไขข้อมูลครู
+                                                    </button>
+                                            </div>
+                                    </form>
+                            </div>
+                    </div>
+            </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- เพิ่มข้อมูลนักเรียน -->
+        <div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+                                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                                        <h5 class="fw-bold text-dark">
+                                                <i class="bi bi-person-plus-fill text-primary me-2"></i>
+                                                เพิ่มข้อมูลนักเรียน
+                                            </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+
+                                <form action="{{ url_for('admin.add_student') }}" method="POST">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <div class="modal-body p-4">
+                                                <div class="mb-3">
+                                                        <label
+                                class="form-label small fw-bold text-secondary">ชื่อ-นามสกุล</label>
+                                                        <input type="text" name="full_name" class="form-control"
+                                placeholder="เช่น เด็กชายมานะ ใจดี"                                 required>
+                                                    </div>
+
+                                                <div class="row g-3 mb-3">
+                                                        <div class="col-7">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">รหัสนักเรียน</label>
+                                                                <input type="text" name="student_id"
+                                    class="form-control" placeholder="เช่น 12345"                                    
+                                    maxlength="6" required>
+                                                            </div>
+
+                                                        <div class="col-5">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">เลขที่</label>
+                                                                <input type="number" name="student_number"
+                                    class="form-control" placeholder="เช่น 1"                                    
+                                    required>
+                                                            </div>
+                                                    </div>
+
+                                                <div class="row g-3 mb-3">
+                                                        <div class="col-5">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">ระดับการศึกษา</label>
+                                                                <select name="education_level" id="add_education_level"
+                                    class="form-select">
+                                                                        <option value="มัธยมศึกษา" selected>มัธยมศึกษา
+                                        (ม.)</option>
+                                                                        <option value="ประถมศึกษา">ประถมศึกษา (ป.)
+                                    </option>
+                                                                    </select>
+                                                            </div>
+
+                                                        <div class="col-3">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">ระดับชั้น</label>
+                                                                <input type="text" name="student_level"
+                                    id="add_student_level" class="form-control"                                    
+                                    placeholder="เช่น 6" required>
+                                                            </div>
+
+                                                        <div class="col-4">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">ห้องเรียน</label>
+                                                                <input type="text" name="student_room"
+                                    id="add_student_room" class="form-control"                                    
+                                    placeholder="เช่น 2" required>
+                                                            </div>
+                                                    </div>
+
+                                                <div class="mb-2">
+                                                        <label
+                                class="form-label small fw-bold text-secondary">ชื่อสถานศึกษา</label>
+                                                        <input type="text" name="school_name" class="form-control"
+                                placeholder="เช่น โรงเรียนใจดี"                                 required>
+                                                    </div>
+                                            </div>
+
+                                        <div class="modal-footer border-top-0 pt-0 pb-4 px-4 gap-2">
+                                                <button type="button" class="btn btn-light px-4 py-2"                  
+                                      style="border-radius: 12px; font-weight: 500;" data-bs-dismiss="modal">
+                                                        ปิด
+                                                    </button>
+
+                                                <button type="submit" class="btn btn-primary px-4 py-2 fw-bold"
+                            style="border-radius: 12px;">
+                                                        เพิ่มข้อมูลนักเรียนใหม่
+                                                    </button>
+                                            </div>
+                                    </form>
+                            </div>
+                    </div>
+            </div>
+
+        <!-- เพิ่มข้อมูลครู -->
+        <div class="modal fade" id="addTeacherModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg" style="border-radius: 24px;">
+                                <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                                        <h5 class="fw-bold text-dark"><i                            
+                            class="bi bi-person-plus-fill text-primary me-2"></i>เพิ่มข้อมูลคุณครู</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                <form action="{{ url_for('admin.add_teacher') }}" method="POST">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <div class="modal-body p-4">
+                                                <div class="mb-3">
+                                                        <label
+                                class="form-label small fw-bold text-secondary">ชื่อ-นามสกุล</label>
+                                                        <input type="text" name="full_name" class="form-control"
+                                placeholder="เช่น นายมานะ เรียนดี"                                 required>
+                                                    </div>
+
+                                                <div class="row g-3 mb-3">
+                                                        <div class="col-6">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">รหัสครูประจำตัว</label>
+                                                                <input type="text" name="teacher_id"
+                                    class="form-control" placeholder="เช่น T-68001"                                    
+                                    maxlength="7" required>
+                                                            </div>
+
+                                                        <div class="col-6">
+                                                                <label
+                                    class="form-label small fw-bold text-secondary">กลุ่มสาระการเรียนรู้</label>
+                                                                <input type="text" name="department"
+                                    class="form-control" placeholder="เช่น ภาษาไทย"                                    
+                                    required>
+                                                            </div>
+                                                    </div>
+
+                                                <div class="mb-3">
+                                                        <label class="form-label small fw-bold text-secondary">อีเมล
+                                (ใช้เข้าสู่ระบบ)</label>
+                                                        <input type="email" name="email" class="form-control"
+                                placeholder="teacher@school.ac.th"                                 required>
+                                                    </div>
+
+                                                <div class="mb-3">
+                                                        <label
+                                class="form-label small fw-bold text-secondary">ชื่อสถานศึกษา</label>
+                                                        <input type="text" name="school_name" class="form-control"      
+                                                          placeholder="เช่น โรงเรียนมัธยมศึกษา" required>
+                                                    </div>
+
+                                                <div class="mb-3">
+                                                        <label
+                                class="form-label small fw-bold text-secondary">กำหนดรหัสผ่านเริ่มต้น</label>
+                                                        <div class="position-relative">
+                                                                <input type="password" name="password" id="add_password"
+                                    class="form-control pe-5"                                    
+                                    placeholder="กรอกรหัสผ่าน 8 ตัวขึ้นไป" required>
+
+                                                                <button                                    
+                                    class="btn position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent toggle-password text-muted"
+                                                                        type="button" data-target="add_password">
+                                                                        <i class="bi bi-eye-slash"></i>
+                                                                    </button>
+                                                            </div>
+                                                    </div>
+
+                                                <div class="mb-3">
+                                                        <label
+                                class="form-label small fw-bold text-secondary">ยืนยันรหัสผ่านเริ่มต้น</label>
+                                                        <div class="position-relative">
+                                                                <input type="password" name="confirm_password"
+                                    id="add_confirm_password"                                    
+                                    class="form-control pe-5" placeholder="พิมพ์รหัสผ่านใหม่อีกครั้ง" required>
+
+                                                                <button                                    
+                                    class="btn position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent toggle-password text-muted"
+                                                                        type="button"
+                                    data-target="add_confirm_password">
+                                                                        <i class="bi bi-eye-slash"></i>
+                                                                    </button>
+                                                            </div>
+                                                    </div>
+
+                                            </div>
+                                        <div class="modal-footer border-top-0 pt-0 pb-4 px-4 gap-2">
+                                                <button type="button" class="btn btn-light px-4 py-2"                  
+                                      style="border-radius: 12px; font-weight: 500;" data-bs-dismiss="modal">
+                                                        ปิด
+                                                    </button>
+
+                                                <button type="submit" class="btn btn-primary px-4 py-2 fw-bold"
+                            style="border-radius: 12px;">
+                                                        เพิ่มข้อมูลคุณครู
+                                                    </button>
+                                            </div>
+                                    </form>
+                            </div>
+                    </div>
+            </div>
+
+        {% include 'components/footer.html' %}
+
+       
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+       
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const alertFn = window.showDashboardAlert || window.showAlert;
+
+            {% for category, message in messages %}
+            const msg = '{{ message }}';
+            const cat = '{{ category }}';
+
+            if (typeof alertFn === "function") {
+                alertFn(cat, msg);
+            }
+            else if (msg === 'Login_Success' || msg.includes('ยินดีต้อนรับ') || msg.includes('เข้าสู่ระบบ')) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'เข้าสู่ระบบสำเร็จ!',
+                    text: msg === 'Login_Success' ? 'ยินดีต้อนรับผู้ดูแลระบบ Admin Dashboard' : msg,
+                    confirmButtonColor: '#2563eb',
+                    confirmButtonText: 'ตกลง',
+                    customClass: {
+                        popup: 'rounded-4 shadow-lg border-0'
+                    },
+                    showClass: {
+                        popup: 'animate__animated animate__zoomIn animate__faster'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOut animate__faster'
+                    }
+                });
+            }
+            {% endfor %}
+        });
+    </script>
+        {% endif %}
+        {% endwith %}
+
+</body>
+
+</html> 

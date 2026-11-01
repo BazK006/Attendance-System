@@ -1,0 +1,162 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_header.css') }}">
+
+<header class="navbar border-bottom px-2 px-sm-3 px-md-4 sticky-top mb-1" id="admin-topbar">
+
+    <div class="container-fluid p-0 d-flex align-items-center justify-content-between flex-nowrap gap-2">
+
+        <div class="d-flex align-items-center gap-2 flex-shrink-1" style="min-width: 0;">
+
+            <a href="{{ url_for('admin.manage_system') }}"
+                class="text-decoration-none d-inline-flex align-items-center gap-2 flex-shrink-1" style="min-width: 0;">
+
+                <i class="bi bi-shield-lock-fill text-white flex-shrink-0" style="font-size: 20px;"></i>
+
+                <span class="fw-bold text-white text-nowrap d-none d-sm-inline-block" style="font-size: 15px;">
+                    Attendance Management
+                </span>
+            </a>
+
+            <span
+                class="badge bg-light text-secondary border d-none d-lg-inline-flex align-items-center flex-shrink-0 px-2 py-1 rounded-2"
+                style="font-size: 11px;">
+                v1.0.0
+            </span>
+        </div>
+
+        <div class="d-flex align-items-center flex-shrink-0">
+
+            <div class="dropdown" id="admin-profile-wrapper">
+
+                <button
+                    class="btn btn-link text-decoration-none dropdown-toggle d-flex align-items-center gap-2 p-1 border-0 text-white dropdown-toggle-custom"
+                    type="button" id="adminProfileDropdown" data-bs-toggle="dropdown" data-bs-auto-close="true"
+                    aria-expanded="false" aria-label="เมนูผู้ดูแลระบบ" style="box-shadow: none;">
+
+                    <i class="bi bi-person-circle text-white flex-shrink-0"
+                        style="font-size: 24px; line-height: 1;"></i>
+
+                    <!-- แสดงชื่อเฉพาะ Tablet / Desktop -->
+                    <div class="text-start d-none d-md-block" style="line-height: 1.1;">
+
+                        <div class="fw-semibold small text-white mb-1 text-truncate admin-username">
+                            {{ session.get('username', 'Administrator') }}
+                        </div>
+
+                        <div class="text-white-50 small" style="font-size: 10px; opacity: 0.85;">
+                            ผู้ดูแลระบบ
+                        </div>
+                    </div>
+
+                    <i class="bi bi-caret-down-fill text-white ms-1 arrow-icon flex-shrink-0"
+                        style="font-size: 12px;"></i>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 py-2 admin-profile-menu"
+                    aria-labelledby="adminProfileDropdown">
+
+                    <!-- แสดงชื่อผู้ใช้บนมือถือ -->
+                    <li class="px-3 py-2 border-bottom mb-2 d-md-none bg-primary bg-opacity-10 rounded-top-4">
+                        <div class="fw-bold small text-primary text-break">
+                            {{ session.get('username', 'Administrator') }}
+                        </div>
+                        <div class="text-muted" style="font-size: 11px;">
+                            ผู้ดูแลระบบ
+                        </div>
+                    </li>
+
+                    <li>
+                        <h6 class="dropdown-header text-primary fw-bold small" style="letter-spacing: 0.5px;">
+                            ระบบจัดการข้อมูล
+                        </h6>
+                    </li>
+
+                    <!-- Dashboard -->
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-3 px-3 py-2 small text-secondary"
+                            href="{{ url_for('admin.manage_system') }}">
+
+                            <div class="bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                style="width: 28px; height: 28px;">
+                                <i class="bi bi-bar-chart-fill text-primary" style="font-size: 0.85rem;"></i>
+                            </div>
+
+                            <span class="fw-medium">หน้าหลัก / ภาพรวมระบบ</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider opacity-10 my-2">
+                    </li>
+
+                    <!-- จัดการนักเรียน -->
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-3 px-3 py-2 small text-secondary"
+                            href="{{ url_for('admin.manage_students') }}">
+
+                            <div class="bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                style="width: 28px; height: 28px;">
+                                <i class="bi bi-people-fill text-primary" style="font-size: 0.85rem;"></i>
+                            </div>
+
+                            <span class="fw-medium">จัดการข้อมูลนักเรียน</span>
+                        </a>
+                    </li>
+
+                    <!-- จัดการคุณครู -->
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-3 px-3 py-2 small text-secondary"
+                            href="{{ url_for('admin.manage_teachers') }}">
+
+                            <div class="bg-info-subtle rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                style="width: 28px; height: 28px;">
+                                <i class="bi bi-person-workspace text-info" style="font-size: 0.85rem;"></i>
+                            </div>
+
+                            <span class="fw-medium">จัดการข้อมูลคุณครู</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider opacity-10 my-2">
+                    </li>
+
+                    <!-- Audit Logs -->
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-3 px-3 py-2 small text-secondary"
+                            href="{{ url_for('logs_status.view_logs') }}">
+
+                            <div class="bg-secondary-subtle rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                style="width: 28px; height: 28px;">
+                                <i class="bi bi-clock-history text-secondary" style="font-size: 0.85rem;"></i>
+                            </div>
+
+                            <span class="fw-medium">ประวัติการใช้งาน (Logs)</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider opacity-10 my-2">
+                    </li>
+
+
+                    <!-- Logout -->
+                    <li>
+                        <a class="dropdown-item text-danger d-flex align-items-center gap-3 px-3 py-2 small fw-bold"
+                            href="{{ url_for('auth.logout') }}" id="btn-admin-logout">
+
+                            <div class="bg-danger-subtle rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                style="width: 28px; height: 28px;">
+                                <i class="bi bi-box-arrow-right text-danger" style="font-size: 0.85rem;"></i>
+                            </div>
+
+                            <span>ออกจากระบบ</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+
+    </div>
+</header>

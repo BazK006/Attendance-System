@@ -1,0 +1,35 @@
+/* ==========================================
+   STUDENT PAGE - ENTRANCE ANIMATION
+========================================== */
+@keyframes studentSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.student-page-enter {
+    opacity: 0;
+    animation: studentSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.student-page-header {
+    animation-delay: 0.05s;
+}
+
+.student-page-card {
+    animation-delay: 0.14s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .student-page-enter {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}

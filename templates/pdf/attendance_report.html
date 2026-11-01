@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>ใบสรุปรายชื่อผู้เข้าเรียน</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+        @page {
+            size: A4 portrait;
+            margin: 12mm 15mm;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #1e293b;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #0f172a;
+        }
+
+        .header h2 {
+            margin: 0 0 6px 0;
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.3px;
+        }
+
+        .info-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #2563eb;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-top: 10px;
+            display: table;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .info-item {
+            display: table-cell;
+            font-size: 13px;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .info-item strong {
+            color: #0f172a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            border-top: 1px solid #cbd5e1;
+            border-bottom: 2px solid #cbd5e1;
+            padding: 10px 8px;
+            text-align: center;
+        }
+
+        td {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 9px 8px;
+            vertical-align: middle;
+            color: #334155;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        .font-mono {
+            font-family: 'Sarabun', monospace, sans-serif;
+            letter-spacing: 0.3px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 55px;
+        }
+
+        .badge-present {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-late {
+            background-color: #fef9c3;
+            color: #a16207;
+            border: 1px solid #fef08a;
+        }
+
+        .badge-leave {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .badge-absent {
+            background-color: #ffe4e6;
+            color: #be123c;
+            border: 1px solid #fecdd3;
+        }
+
+        .summary-box {
+            margin-top: 25px;
+            padding: 14px 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #f8fafc;
+            page-break-inside: avoid;
+        }
+
+        .summary-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .summary-grid {
+            display: table;
+            width: 100%;
+        }
+
+        .summary-cell {
+            display: table-cell;
+            padding: 4px 10px 4px 0;
+            font-size: 13px;
+        }
+
+        .summary-divider {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed #cbd5e1;
+            color: #0f172a;
+            font-size: 13.5px;
+        }
+
+        .sign-area {
+            margin-top: 40px;
+            float: right;
+            text-align: center;
+            width: 250px;
+            page-break-inside: avoid;
+        }
+
+        .sign-line {
+            border-bottom: 1px dotted #64748b;
+            margin-bottom: 8px;
+            height: 30px;
+        }
+
+        .clear {
+            clear: both;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2>ใบสรุปรายชื่อผู้เข้าเรียน</h2>
+
+        <div class="info-card">
+            <div class="info-item text-left">
+                <strong>วิชา:</strong> ({{ s.id_subject }}) {{ s.subject_name }}
+            </div>
+            <div class="info-item text-center">
+                <strong>ห้อง:</strong> {{ student_change_level }}{{ s.room_name }}
+            </div>
+            <div class="info-item" style="text-align: right;">
+                <strong>วันที่เริ่มคาบ:</strong> {{ today }} | <strong>เวลา:</strong> {{ session_time }}
+            </div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="7%">เลขที่</th>
+                <th width="15%">รหัสนักเรียน</th>
+                <th>ชื่อ - นามสกุล</th>
+                <th width="14%">สถานะ</th>
+                <th width="14%">เวลาเช็คชื่อ</th>
+                <th width="18%">อัปเดตล่าสุด</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for std in students %}
+            {% set att = att_map.get(std.student_id|string) %}
+            <tr>
+                <td class="text-center font-mono">{{ std.student_number }}</td>
+                <td class="text-center font-mono" style="color: #64748b;">{{ std.student_id }}</td>
+                <td class="text-left" style="font-weight: 500; color: #0f172a;">{{ std.full_name }}</td>
+
+                <td class="text-center">
+                    {% if att %}
+                    {% if att.status == 'present' %}
+                    <span class="badge badge-present">มาเรียน</span>
+                    {% elif att.status == 'late' %}
+                    <span class="badge badge-late">มาสาย</span>
+                    {% elif att.status == 'leave' %}
+                    <span class="badge badge-leave">ลา</span>
+                    {% elif att.status == 'absent' %}
+                    <span class="badge badge-absent">ขาดเรียน</span>
+                    {% else %}
+                    <span class="badge badge-absent">ขาดเรียน</span>
+                    {% endif %}
+                    {% else %}
+                    <span class="badge badge-absent">ขาดเรียน</span>
+                    {% endif %}
+                </td>
+
+                <td class="text-center font-mono" style="color: #334155;">
+                    {{ att.check_in_time.strftime('%H:%M:%S') if att else '-' }}
+                </td>
+
+                <td class="text-center" style="color: #64748b; font-size: 12px;">
+                    {{ format_updated_at(att) }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="summary-box">
+        <div class="summary-title">สรุปยอดการเข้าเรียนประจำคาบ</div>
+        <div class="summary-grid">
+            <div class="summary-cell">
+                <span style="color: #15803d; font-weight: 600;">● มาเรียน:</span> {{ stats.present }} คน
+            </div>
+            <div class="summary-cell">
+                <span style="color: #a16207; font-weight: 600;">● มาสาย:</span> {{ stats.late }} คน
+            </div>
+            <div class="summary-cell">
+                <span style="color: #0369a1; font-weight: 600;">● ลา:</span> {{ stats.leave }} คน
+            </div>
+            <div class="summary-cell">
+                <span style="color: #be123c; font-weight: 600;">● ขาดเรียน:</span> {{ stats.absent }} คน
+            </div>
+        </div>
+
+        <div class="summary-divider">
+            <strong>จำนวนนักเรียนทั้งหมด:</strong> {{ stats.total }} คน
+        </div>
+    </div>
+
+    <div class="sign-area">
+        <div class="sign-line"></div>
+        <div style="font-weight: 600; color: #0f172a;">( {{ s.teacher.full_name }} )</div>
+        <div style="font-size: 12px; color: #64748b; margin-top: 2px;">ครูผู้สอน</div>
+        <div style="margin-top: 10px; font-size: 11px; color: #94a3b8;">พิมพ์เมื่อ: {{ today_print }}</div>
+    </div>
+
+    <div class="clear"></div>
+
+</body>
+
+</html>

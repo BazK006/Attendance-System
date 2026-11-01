@@ -1,0 +1,52 @@
+body {
+    font-family: 'Sarabun', sans-serif;
+    background-color: #f8fafc;
+}
+
+.swal2-cancel {
+    background-color: #e5e7eb !important;
+    color: #374151 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+}
+
+.swal2-cancel:hover {
+    background-color: #d1d5db !important;
+}
+
+/* =========================================
+    Teacher Management - Entrance Animation
+========================================= */
+@keyframes teacherSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.teacher-page-enter {
+    opacity: 0;
+    animation: teacherSlideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.teacher-page-header {
+    animation-delay: 0.05s;
+}
+
+.teacher-page-card {
+    animation-delay: 0.14s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .teacher-page-enter {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}

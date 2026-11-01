@@ -1,0 +1,167 @@
+body {
+    background-color: #f4f7fe;
+    font-family: 'Sarabun', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-in {
+    animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.stat-card {
+    border-radius: 22px;
+    border: none;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.card-present:hover {
+    background: linear-gradient(to bottom, #ffffff, #f0fff4);
+}
+
+.card-late:hover {
+    background: linear-gradient(to bottom, #ffffff, #fffdf0);
+}
+
+.card-leave:hover {
+    background: linear-gradient(to bottom, #ffffff, #f0f9ff);
+}
+
+.card-absent:hover {
+    background: linear-gradient(to bottom, #ffffff, #fff5f5);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 28px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.chart-container:hover {
+    transform: scale(1.01);
+}
+
+.history-table-1 {
+    background: white;
+    border-radius: 28px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.info-bar {
+    background: white;
+    border-radius: 20px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.table> :not(caption)>*>* {
+    border-bottom-color: #f1f5f9 !important;
+}
+
+@media (max-width: 576px) {
+    .stat-value {
+        font-size: 1.6rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .info-text {
+        font-size: 0.8rem;
+    }
+}
+
+.delay-1 {
+    animation-delay: 0.1s;
+}
+
+.delay-2 {
+    animation-delay: 0.2s;
+}
+
+.delay-3 {
+    animation-delay: 0.3s;
+}
+
+.delay-4 {
+    animation-delay: 0.4s;
+}
+
+.delay-5 {
+    animation-delay: 0.5s;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-up {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.delay-1 {
+    animation-delay: 0.1s;
+}
+
+.delay-2 {
+    animation-delay: 0.2s;
+}
+
+.delay-3 {
+    animation-delay: 0.3s;
+}
+
+.delay-4 {
+    animation-delay: 0.4s;
+}

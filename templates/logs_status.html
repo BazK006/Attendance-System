@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ประวัติการใช้งานระบบ | Audit Logs</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <script src="{{ url_for('static', filename='js/log_status.js') }}"></script>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/shield-fill-check.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/logs_status.css') }}">
+</head>
+
+<body>
+    {% include 'components/admin_header.html' %}
+
+    <main class="container-fluid px-3 px-md-4 py-4 py-lg-5">
+        <div class="audit-page">
+            <div
+                class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-4 audit-page-enter audit-page-header">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="audit-icon">
+                        <i class="bi bi-journal-text" aria-hidden="true"></i>
+                    </div>
+
+                    <div>
+                        <h1 class="h3 fw-bold text-dark mb-1">
+                            ประวัติการใช้งานระบบ
+                        </h1>
+
+                        <p class="text-muted small mb-0">
+                            ตรวจสอบการเข้าสู่ระบบและกิจกรรมที่เกิดขึ้นในระบบ
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span id="auditSocketStatus" class="audit-live">
+                        <span class="audit-live-dot"></span>
+                        <span>กำลังเชื่อมต่อ</span>
+                    </span>
+
+                    <a href="{{ url_for('admin.manage_system') }}"
+                        class="btn btn-light border rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm p-0"
+                        style="width: 42px; height: 42px;" title="กลับหน้าจัดการระบบ" aria-label="กลับหน้าจัดการระบบ">
+                        <i class="bi bi-arrow-left fs-5"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Card -->
+            <section class="audit-card shadow-sm audit-page-enter audit-page-card">
+                <div class="audit-toolbar">
+                    <div class="audit-toolbar-inner d-flex justify-content-between align-items-center gap-3 flex-wrap">
+
+                        <div>
+                            <h2 class="h6 fw-bold text-dark mb-1">
+                                <i class="bi bi-list-ul me-2 text-primary"></i>
+                                รายการกิจกรรม
+                            </h2>
+
+                            <div id="auditResultCount" class="text-muted small" data-total="{{ pagination.total }}">
+                                พบทั้งหมด {{ pagination.total }} รายการ
+                            </div>
+                        </div>
+
+                        <form id="auditFilterForm" method="GET" action="{{ url_for('logs_status.view_logs') }}"
+                            class="d-flex align-items-center gap-2 flex-wrap">
+
+                            <!-- Role Filter -->
+                            <div id="auditRoleFilterWrapper" class="position-relative flex-shrink-0"
+                                style="width: 160px;">
+
+                                <select id="auditRoleFilter" name="role" class="form-select shadow-none"
+                                    style="width: 100%;" aria-label="กรองตามสิทธิ์ผู้ใช้งาน">
+
+                                    <option value="latest" {% if role_filter=='latest' %}selected{% endif %}>
+                                        ล่าสุด
+                                    </option>
+
+                                    <option value="all" {% if role_filter=='all' %}selected{% endif %}>
+                                        ทุกสิทธิ์
+                                    </option>
+
+                                    <option value="admin" {% if role_filter=='admin' %}selected{% endif %}>
+                                        ผู้ดูแลระบบ
+                                    </option>
+
+                                    <option value="teacher" {% if role_filter=='teacher' %}selected{% endif %}>
+                                        คุณครู
+                                    </option>
+
+                                    <option value="other" {% if role_filter=='other' %}selected{% endif %}>
+                                        สิทธิ์อื่น ๆ
+                                    </option>
+                                </select>
+
+                                <span id="auditRoleSpinner" class="spinner-border spinner-border-sm text-primary d-none"
+                                    role="status" aria-hidden="true" style="
+                                        position: absolute;
+                                        top: 50%;
+                                        right: 12px;
+                                        transform: translateY(-50%);
+                                        pointer-events: none;
+                                    ">
+                                </span>
+
+                            </div>
+
+                            <!-- ช่องค้นหา -->
+                            <div class="input-group audit-search" style="width: 360px; max-width: 100%;">
+
+                                <button type="submit" id="auditSearchSubmit" class="input-group-text" aria-label="ค้นหา"
+                                    title="ค้นหา" style="width: 44px; justify-content: center;">
+
+                                    <i class="bi bi-search"></i>
+                                </button>
+
+                                <input type="text" id="auditSearchInput" name="q" class="form-control shadow-none"
+                                    value="{{ search_query }}" placeholder="ค้นหาผู้ใช้ การกระทำ IP..."
+                                    autocomplete="off" aria-label="ค้นหาประวัติการใช้งาน">
+
+                                <button type="button" id="auditClearSearch"
+                                    class="btn bg-transparent border-0 text-danger px-3" style="display: none;" {% if
+                                    not search_query %}disabled{% endif %} aria-label="ล้างคำค้นหา" title="ล้างคำค้นหา">
+
+                                    <i class="bi bi-x-lg" style="font-size: 0.85rem;"></i>
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table id="auditLogTable" class="table table-hover audit-table">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">วันและเวลา</th>
+                                <th>ผู้ใช้งาน</th>
+                                <th>สิทธิ์ระบบ</th>
+                                <th>การกระทำ</th>
+                                <th>รายละเอียด</th>
+                                <th class="text-center">IP Address</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="auditLogBody">
+                            <!-- Loading State -->
+                            <tr id="auditLoadingRow" class="d-none">
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="spinner-border text-primary mb-3" style="width: 2.5rem; height: 2.5rem;"
+                                        role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+
+                                    <p class="text-primary fw-semibold mb-1">
+                                        กำลังโหลดข้อมูล...
+                                    </p>
+
+                                    <p class="text-muted small mb-0">
+                                        กรุณารอสักครู่ ระบบกำลังค้นหาประวัติการใช้งาน
+                                    </p>
+                                </td>
+                            </tr>
+
+                            {% if logs %}
+                            {% for log in logs %}
+                            <tr class="log-row" data-role="{{ log.role or 'guest' }}">
+
+                                <td class="ps-4">
+                                    <div class="audit-time">
+                                        <div>
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            {{ log.created_at.strftime('%d/%m/%Y') if log.created_at else '-' }}
+                                        </div>
+
+                                        <div>
+                                            <i class="bi bi-clock me-1"></i>
+                                            {{ log.created_at.strftime('%H:%M:%S') if log.created_at else '-' }}
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="audit-user">
+                                    {{ log.user_identifier or '-' }}
+                                </td>
+
+                                <td>
+                                    {% if log.role == 'admin' %}
+                                    <span class="badge badge-admin px-3 py-2 rounded-3">
+                                        <i class="bi bi-shield-lock me-1"></i>
+                                        ผู้ดูแลระบบ
+                                    </span>
+                                    {% elif log.role == 'teacher' %}
+                                    <span class="badge badge-teacher px-3 py-2 rounded-3">
+                                        <i class="bi bi-person-workspace me-1"></i>
+                                        คุณครู
+                                    </span>
+                                    {% else %}
+                                    <span class="badge badge-guest px-3 py-2 rounded-3">
+                                        {{ log.role or 'ไม่ระบุ' }}
+                                    </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    <span class="audit-action">
+                                        {{ log.action or '-' }}
+                                    </span>
+                                </td>
+
+                                <td class="audit-details">
+                                    {{ log.details or '-' }}
+                                </td>
+
+                                <td class="text-center">
+                                    <span class="audit-ip">
+                                        <i class="bi bi-pc-display me-1"></i>
+                                        {{ log.ip_address or 'Unknown' }}
+                                    </span>
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr id="noDataPlaceholder">
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <div class="audit-empty-icon">
+                                            <i class="bi bi-database-x"></i>
+                                        </div>
+
+                                        <h3 class="h6 fw-bold text-dark mb-2">
+                                            ยังไม่มีประวัติการใช้งาน
+                                        </h3>
+
+                                        <p class="text-muted small mb-0">
+                                            เมื่อมีการบันทึกกิจกรรม รายการจะแสดงที่นี่
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+
+                            <tr id="auditSearchEmpty" hidden>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="d-flex flex-column align-items-center">
+                                        <div class="audit-empty-icon">
+                                            <i class="bi bi-search"></i>
+                                        </div>
+
+                                        <h3 class="h6 fw-bold text-dark mb-2">
+                                            ไม่พบประวัติที่ค้นหา
+                                        </h3>
+
+                                        <p class="text-muted small mb-0">
+                                            ลองเปลี่ยนคำค้นหาหรือเลือกสิทธิ์อื่น
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if pagination and pagination.pages > 1 %}
+                <div class="audit-pagination">
+                    <div
+                        class="audit-pagination-inner d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+                        <div class="text-muted small">
+                            หน้า
+                            <strong class="text-dark">{{ pagination.page }}</strong>
+                            จาก
+                            <strong class="text-dark">{{ pagination.pages }}</strong>
+                        </div>
+
+                        <nav aria-label="เปลี่ยนหน้าประวัติการใช้งาน">
+                            <ul class="pagination pagination-sm mb-0">
+
+                                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                                    <a class="page-link rounded-3 me-1" href="{{ url_for(
+                                        'logs_status.view_logs',
+                                        page=pagination.prev_num,
+                                        q=search_query,
+                                        role=role_filter
+                                    ) if pagination.has_prev else '#' }}">
+                                        <i class="bi bi-chevron-left me-1"></i>
+                                        ก่อนหน้า
+                                    </a>
+                                </li>
+
+                                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1,
+                                right_current=2) %}
+                                {% if page_num %}
+                                <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                                    <a class="page-link rounded-3 mx-1" href="{{ url_for(
+                                        'logs_status.view_logs',
+                                        page=page_num,
+                                        q=search_query,
+                                        role=role_filter
+                                    ) }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link border-0 bg-transparent">...</span>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+
+                                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                                    <a class="page-link rounded-3 ms-1" href="{{ url_for(
+                                        'logs_status.view_logs',
+                                        page=pagination.next_num,
+                                        q=search_query,
+                                        role=role_filter
+                                    ) if pagination.has_next else '#' }}">
+                                        ถัดไป
+                                        <i class="bi bi-chevron-right ms-1"></i>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                {% endif %}
+            </section>
+
+            <p class="text-muted small mt-3 mb-0 audit-page-enter audit-page-note">
+                <i class="bi bi-info-circle me-1"></i>
+                ช่องค้นหาและตัวกรองทำงานกับรายการที่โหลดอยู่ในหน้าปัจจุบันเท่านั้น
+            </p>
+
+        </div>
+    </main>
+
+    {% include 'components/footer.html' %}
+</body>
+
+</html>

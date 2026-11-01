@@ -1,0 +1,106 @@
+:root {
+    --primary-gradient: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    --glass-bg: rgba(255, 255, 255, 0.95);
+    --body-bg: #f0f2f5;
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    font-family: 'Inter', 'Sarabun', sans-serif;
+    background-color: var(--body-bg);
+    color: #4a4a4a;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/*.kanit {
+            font-family: 'Kanit', sans-serif;
+        }*/
+
+.hero-stats {
+    background: var(--primary-gradient);
+    padding: 4rem 0;
+    color: white;
+    border-radius: 0 0 3rem 3rem;
+    margin-bottom: -2rem;
+    box-shadow: 0 10px 40px rgba(78, 115, 223, 0.2);
+    margin-top: -1px;
+}
+
+.subject-card {
+    border: none;
+    border-radius: 1.5rem;
+    background: var(--glass-bg);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    height: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.subject-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1) !important;
+}
+
+.card-badge {
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 0.6em 1.2em;
+}
+
+.session-info-box {
+    background: #f8f9fc;
+    border-radius: 1rem;
+    padding: 1.2rem;
+    border: 1px solid #edf2f7;
+}
+
+.btn-action {
+    background: var(--primary-gradient);
+    border: none;
+    border-radius: 0.8rem;
+    font-weight: 600;
+    padding: 0.8rem;
+    transition: 0.3s;
+}
+
+.btn-action:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+    box-shadow: 0 10px 20px rgba(78, 115, 223, 0.3);
+}
+
+.empty-illustration {
+    font-size: 5rem;
+    color: #d1d9e6;
+    animation: float 3s ease-in-out infinite;
+}
+
+.session-info-box-glass {
+    background: rgba(13, 110, 253, 0.08);
+    border-radius: 1.2rem;
+    padding: 1.2rem;
+    border: 1px solid rgba(13, 110, 253, 0.15);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+}
+
+.session-info-box-glass:hover {
+    background: rgba(13, 110, 253, 0.12);
+    border: 1px solid rgba(13, 110, 253, 0.3);
+    transform: scale(1.02);
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}

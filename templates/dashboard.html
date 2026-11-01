@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าหลัก - ระบบเช็คชื่อนักเรียน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Sarabun:wght@300;500&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/person_check.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+
+<body>
+
+    {% include 'components/header.html' %}
+
+    <div class="dashboard-section mt-4">
+        <div class="container">
+            <div class="row align-items-center mb-4 mb-md-5 text-center text-md-start">
+                <div class="col-md-7 welcome-text mb-3 mb-md-0">
+                    <h2 class="head-2"
+                        style="color: #1a237e; font-weight: 700; font-family: 'Inter', 'Sarabun', sans-serif; letter-spacing: -0.5px;">
+                        {{ main_greeting }} {{ session.get('username') }} 👋
+                    </h2>
+                    <p class="mb-1" style="color: #475569; font-size: 1.15rem; font-weight: 500;">
+                        {{ sub_greeting }}
+                    </p>
+                </div>
+
+                <div class="col-md-5 mt-3 mt-md-0 d-grid d-md-block text-md-end">
+                    <button class="btn-create-class btn btn-primary px-4 py-3"
+                        style="border-radius: 15px; font-weight: 600;" data-bs-toggle="modal"
+                        data-bs-target="#createClassModal">
+                        <i class="bi bi-plus-lg me-2"></i> สร้างห้องเช็คชื่อ
+                    </button>
+                </div>
+            </div>
+
+            <div class="row g-3 g-md-4">
+                <div class="col-12 col-md-4">
+                    <div class="stat-card d-flex align-items-center bg-white p-3 p-md-4 h-100 stat-card-glass"
+                        style="border-left: 6px solid #6a9cff;">
+                        <div class="stat-icon me-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="color: #6a9cff; background: #f0f5ff; width: 60px; height: 60px; border-radius: 15px;">
+                            <i class="bi bi-door-open-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted fw-semibold d-block">ห้องเรียนทั้งหมด</small>
+                            <h3 class="fw-bold mb-0 mt-1"
+                                style="opacity: {{ '1' if sessions and sessions|length > 0 else '0.3' }}; transition: all 0.3s ease;">
+                                {{ sessions|length if sessions else 0 }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="stat-card d-flex align-items-center bg-white p-3 p-md-4 h-100 stat-card-glass"
+                        style="border-left: 6px solid #198754;">
+                        <div class="stat-icon me-3 d-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success flex-shrink-0"
+                            style="width: 60px; height: 60px; border-radius: 15px;">
+                            <i class="bi bi-check2-circle fs-3"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted fw-semibold">เช็คชื่อแล้ววันนี้</small>
+                            <h3 class="fw-bold mb-0 {{ 'text-dark' if checked_today_count > 0 else 'text-secondary' }}"
+                                style="opacity: {{ '1' if checked_today_count > 0 else '0.3' }}; transition: all 0.3s ease;">
+                                {{ checked_today_count }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="stat-card d-flex align-items-center bg-white p-3 p-md-4 h-100 stat-card-glass"
+                        style="border-left: 6px solid #a55eea;">
+                        <div class="stat-icon me-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="color: #a55eea; background: #f5f0ff; width: 60px; height: 60px; border-radius: 15px;">
+                            <i class="bi bi-people-fill fs-3"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted fw-semibold">นักเรียนทั้งหมด</small>
+                            <h3 class="fw-bold mb-0" style="opacity: {{ '1' if total_students_count > 0 else '0.3' }}">
+                                {{ total_students_count }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container bg-white mt-4 mt-md-5 p-3 p-md-4"
+                style="border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.03);">
+
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+                    <h5 class="fw-bold mb-0 text-center text-lg-start">
+                        <i class="bi bi-collection-text text-primary me-2"></i>รายการห้องเรียนทั้งหมด
+                    </h5>
+
+                    <div class="d-flex flex-column flex-md-row gap-2 w-100" style="max-width: 800px;">
+                        <div class="d-flex align-items-center bg-white p-1 shadow-sm border flex-grow-1"
+                            style="border-radius: 50px;">
+                            <i class="bi bi-calendar-range text-primary ms-3"></i>
+                            <input type="text" id="dateRangePicker"
+                                class="form-control border-0 bg-transparent fw-bold small flex-grow-1"
+                                style="min-width: 0; cursor: pointer;" placeholder="เลือกช่วงวันที่..." readonly>
+
+                            <button class="btn btn-primary rounded-pill px-3 ms-1 btn-sm fw-bold shadow-sm text-nowrap"
+                                id="applyFilter">
+                                <i class="bi bi-funnel-fill me-1 d-none d-sm-inline"></i>
+                                <span class="d-sm-none">กรอง</span><span class="d-none d-sm-inline">กรองวันที่</span>
+                            </button>
+
+                            {% if request.args.get('start') %}
+                            <a href="{{ url_for('dashboard.dashboard') }}"
+                                class="btn btn-light rounded-circle ms-1 d-flex align-items-center justify-content-center shadow-sm flex-shrink-0"
+                                style="width: 32px; height: 32px; border: 1px solid #eee;" title="ล้างการกรอง">
+                                <i class="bi bi-x-lg text-danger"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex">
+                            <div class="input-group rounded-pill shadow-sm border overflow-hidden search-session-wrapper w-100 ms-auto"
+                                style="max-width: 320px; border-color: #e2e8f0 !important; background-color: #f8fafc; transition: all 0.2s ease;">
+
+                                <!-- ไอคอนแว่นขยาย -->
+                                <span class="input-group-text bg-transparent border-0 text-secondary ps-3 pe-1">
+                                    <i class="bi bi-search" style="color: #64748b;"></i>
+                                </span>
+
+                                <!-- ช่องกรอกค้นหา -->
+                                <input type="text" id="searchSession"
+                                    class="form-control bg-transparent border-0 shadow-none px-2 py-2 text-dark"
+                                    placeholder="ค้นหาชื่อห้องเรียน, วิชา..." style="outline: none; font-size: 0.9rem;">
+
+                                <!-- ปุ่มกากบาท (X) ล้างค่า -->
+                                <span
+                                    class="input-group-text bg-transparent border-0 pe-3 d-flex align-items-center justify-content-center"
+                                    style="width: 40px;">
+                                    <i class="bi bi-x-circle-fill text-danger opacity-75" id="clearSearchSession"
+                                        style="visibility: hidden; font-size: 1rem; cursor: pointer; transition: all 0.2s ease;"
+                                        title="ล้างการค้นหา"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light text-muted text-nowrap">
+                            <tr>
+                                <th class="border-0 rounded-start py-3 ps-3">ชื่อห้อง</th>
+                                <th class="border-0 py-3">รหัสวิชา</th>
+                                <th class="border-0 py-3">ชื่อวิชา</th>
+                                <th class="border-0 py-3 text-center">QR Code</th>
+                                <th class="border-0 py-3 text-center">รหัสยืนยัน</th>
+                                <th class="border-0 py-3 text-center">รายชื่อนักเรียน</th>
+                                <th class="border-0 py-3 text-center">เวลาเช็คชื่อ</th>
+                                <th class="border-0 py-3 text-center">สร้างเมื่อ</th>
+                                <th class="border-0 py-3 text-center">สถานะ</th>
+                                <th class="border-0 rounded-end py-3 text-center pe-3">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in sessions %}
+                            <tr class="session-row text-nowrap">
+                                <td class="py-3 ps-3">
+                                    <span class="fw-bold text-dark">
+                                        {% if s.room_tag %}
+                                        {{ s.room_tag }}
+                                        {% elif s.room_name %}
+                                        {{ s.room_name }}
+                                        {% else %}
+                                        {% if s.education_level == 'มัธยมศึกษา' %}ม.{% elif s.education_level ==
+                                        'ประถมศึกษา' %}ป.{% endif %}{{ s.student_level }}/{{ s.student_room }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="fw-semibold text-primary">{{ s.id_subject }}</span>
+                                </td>
+
+                                <td>
+                                    <span class="fw-semibold text-secondary">{{ s.subject_name }}</span>
+                                </td>
+
+                                <td class="text-center">
+                                    <button
+                                        onclick="showQRCode('{{ s.id }}', '{{ s.room_name }}', '{{ s.start_time.isoformat() }}', {{ s.allowed_minutes }}, '{{ url_for('class_session.session_room', session_id=s.id, _external=True) }}')"
+                                        class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold shadow-sm"
+                                        title="QR Code">
+                                        <i class="bi bi-qr-code"></i>
+                                    </button>
+                                </td>
+
+                                <td class="text-center">
+                                    <code
+                                        class="fw-bold bg-dark bg-opacity-10 px-3 py-1.5 rounded-pill text-primary dynamic-secret-key"
+                                        style="letter-spacing: 1px;" data-session-id="{{ s.id }}"
+                                        data-init-style="true">
+                                        กำลังโหลด...
+                                    </code>
+                                </td>
+
+                                <td class="text-center">
+                                    <a href="{{ url_for('class_session.session_room', session_id=s.id) }}"
+                                        target="_blank"
+                                        class="btn btn-outline-info btn-sm rounded-pill px-3 fw-semibold shadow-sm">
+                                        <i class="bi bi-people-fill me-1"></i> รายชื่อทั้งหมด
+                                    </a>
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="fw-semibold text-secondary small">
+                                        <i class="bi bi-clock-history me-1"></i>{{ s.allowed_minutes }} นาที
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+                                    <span
+                                        class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill small fw-normal">
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        {{ format_thai_date(s.created_at) }}
+                                        {{ format_thai_time(s.created_at) }}
+                                    </span>
+                                </td>
+
+                                <td class="text-center">
+                                    <span id="status-badge-{{ s.id }}"
+                                        class="badge px-3 py-2 rounded-pill fw-semibold {% if s.status == 'active' %} bg-success bg-opacity-10 text-success pulse-active {% else %} bg-danger bg-opacity-10 text-danger {% endif %}">
+                                        {% if s.status == 'active' %}
+                                        <i class='bi bi-check-circle-fill me-1'></i> เปิด
+                                        {% else %}
+                                        <i class='bi bi-x-circle me-1'></i> ปิดรับ
+                                        {% endif %}
+                                    </span>
+                                </td>
+
+                                <td class="text-center pe-3">
+                                    <div class="d-flex gap-1 justify-content-center">
+                                        <a href="{{ url_for('stat_dashboard.show_stats', session_id=s.id) }}"
+                                            class="btn btn-outline-primary btn-sm rounded-pill px-2.5 shadow-sm"
+                                            title="สถิติข้อมูล">
+                                            <i class="bi bi-bar-chart-line-fill"></i>
+                                        </a>
+
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-warning rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm"
+                                            style="width: 34px; height: 34px; padding: 0;" data-session-id="{{ s.id }}"
+                                            data-id-subject="{{ s.id_subject }}"
+                                            data-subject-name="{{ s.subject_name }}"
+                                            data-action-url="{{ url_for('class_session.update_session', session_id=s.id) }}"
+                                            onclick="openEditModal(this)" title="แก้ไขข้อมูล">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+
+                                        <button class="btn btn-outline-danger btn-sm rounded-pill px-2.5 shadow-sm"
+                                            onclick="confirmDelete('{{ s.id }}', '{{ s.room_name }}', '{{ s.id_subject }}', '{{ s.subject_name }}')"
+                                            title="ลบห้องเรียน">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    <form id="delete-form-{{ s.id }}"
+                                        action="{{ url_for('class_session.delete_session', session_id=s.id) }}"
+                                        method="POST" style="display: none;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                            <tr id="emptyStateRow" class="empty-state-row {% if sessions %}d-none{% endif %}">
+                                <td colspan="10" class="text-center py-5">
+                                    <div class="text-muted">
+                                        <div id="searchLoading" class="d-none animate__animated animate__fadeIn">
+                                            <div class="spinner-border text-primary mb-3" role="status"
+                                                style="width: 3rem; height: 3rem;"></div>
+                                            <h6 class="fw-bold">ระบบกำลังประมวลผลข้อมูล...</h6>
+                                        </div>
+
+                                        <div id="searchMessage" class="animate__animated animate__fadeIn">
+                                            <div class="mb-3">
+                                                {% if sessions %}
+                                                <i id="stateIcon"
+                                                    class="bi bi-search-heart fs-1 text-primary opacity-50 d-block animate__animated animate__pulse animate__infinite"></i>
+                                                {% else %}
+                                                <i id="stateIcon"
+                                                    class="bi bi-inboxes fs-1 text-primary opacity-50 d-block animate__animated animate__bounceIn"></i>
+                                                {% endif %}
+                                            </div>
+
+                                            <h6 id="stateHeader" class="fw-bold text-dark mb-2">
+                                                {% if sessions %}
+                                                ไม่พบข้อมูลห้องเรียนที่คุณค้นหา
+                                                {% else %}
+                                                ยังไม่มีห้องเรียนในระบบ
+                                                {% endif %}
+                                            </h6>
+
+                                            <p id="stateSubtext" class="text-muted mb-0 small">
+                                                {% if sessions %}
+                                                ตรวจสอบคำค้นหา หรือลองค้นด้วยรหัสวิชาดูอีกครั้งนะครับ
+                                                {% else %}
+                                                พร้อมสำหรับคาบเรียนใหม่หรือยัง? กดปุ่ม
+                                                <span class="fw-bold text-primary text-decoration-none"
+                                                    style="cursor: pointer; transition: all 0.2s;"
+                                                    data-bs-toggle="modal" data-bs-target="#createClassModal"
+                                                    onmouseover="this.style.color='#0a58ca'; this.style.opacity='0.8';"
+                                                    onmouseout="this.style.color=''; this.style.opacity='1';">
+                                                    สร้างห้องเช็คชื่อ
+                                                </span>
+                                                แล้วลุยกันเลย!
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Models สร้างห้องเรียน -->
+    <div class="modal fade" id="createClassModal" tabindex="-1" aria-labelledby="createClassModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content"
+                style="border-radius: 20px; border: none; box-shadow: 0 15px 35px rgba(0,0,0,0.1);">
+
+                <div class="modal-header border-0 pb-0 mt-3 px-4">
+                    <h5 class="modal-title fw-bold d-flex align-items-center" id="createClassModalLabel"
+                        style="color: #1a237e;">
+                        <span
+                            class="d-inline-flex align-items-center justify-content-center rounded-circle me-3 shadow-sm"
+                            style="width: 42px; height: 42px; background-color: #fef3c7; color: #d97706; min-width: 42px;">
+                            <i class="bi bi-magic fs-5"></i>
+                        </span>
+                        <span>สร้างห้องเช็คชื่อใหม่</span>
+                    </h5>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+
+                <form id="createClassForm" action="{{ url_for('class_session.create_session') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="modal-body px-4 py-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">รหัสวิชา</label>
+                            <input type="text" class="form-control form-control-lg custom-focus shadow-none"
+                                name="id_subject" placeholder="ท12345" maxlength="6" required
+                                style="border-radius: 12px; text-transform: uppercase;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">ชื่อวิชา</label>
+                            <input type="text" class="form-control form-control-lg custom-focus shadow-none"
+                                name="subject_name" placeholder="คณิตศาสตร์พื้นฐาน" required
+                                style="border-radius: 12px;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted">เลือกห้องเรียน</label>
+                            <select class="form-select form-select-lg custom-focus shadow-none" name="room_name"
+                                required style="border-radius: 12px;">
+                                <option value="" selected disabled>-- เลือกห้องจากคลังรายชื่อ --</option>
+                                {% for room in available_rooms %}
+                                <option value="{{ room }}">{{ room }}</option>
+                                {% endfor %}
+                            </select>
+
+                            {% if not available_rooms %}
+                            <small class="text-danger mt-1 d-block">
+                                <i class="bi bi-exclamation-triangle"></i> ยังไม่มีข้อมูลในคลังรายชื่อนร.
+                                <a href="{{ url_for('data_students.data_students') }}"
+                                    class="text-decoration-none">ไปเพิ่มนักเรียนก่อน</a>
+                            </small>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label fw-semibold text-muted mb-0">เวลาเช็คชื่อ</label>
+
+                                <div class="d-flex gap-1">
+                                    <button type="button"
+                                        class="btn btn-sm btn-light border-0 rounded-pill text-muted px-2 py-0"
+                                        style="font-size: 0.8rem;" onclick="setCheckinTime(5)">5m</button>
+                                    <button type="button"
+                                        class="btn btn-sm btn-light border-0 rounded-pill text-muted px-2 py-0"
+                                        style="font-size: 0.8rem;" onclick="setCheckinTime(10)">10m</button>
+                                    <button type="button"
+                                        class="btn btn-sm btn-light border-0 rounded-pill text-muted px-2 py-0"
+                                        style="font-size: 0.8rem;" onclick="setCheckinTime(15)">15m</button>
+                                    <button type="button"
+                                        class="btn btn-sm btn-light border-0 rounded-pill text-muted px-2 py-0"
+                                        style="font-size: 0.8rem;" onclick="setCheckinTime(30)">30m</button>
+                                </div>
+                            </div>
+
+                            <div class="input-group input-group-lg custom-focus-group shadow-none"
+                                style="border-radius: 12px; overflow: hidden;">
+                                <span class="input-group-text bg-transparent border-0 text-muted ps-3">
+                                    <i class="bi bi-stopwatch"></i>
+                                </span>
+
+                                <input type="number" class="form-control bg-transparent border-0 shadow-none fw-bold"
+                                    id="allowedMinutesInput" name="allowed_minutes" value="10" min="1" required
+                                    style="color: #1a237e;">
+
+                                <span class="input-group-text bg-transparent border-0 text-muted pe-3 fw-medium"
+                                    style="font-size: 0.95rem;">
+                                    นาที
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card bg-light border-0"
+                            style="border-radius: 12px; border: 1px dashed #ced4da !important;">
+                            <div class="card-body d-flex align-items-center py-3">
+                                <div class="icon-box me-3 bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+                                    style="width: 40px; height: 40px; color: #1a237e;">
+                                    <i class="bi bi-clock-history fs-5"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 fw-bold" style="color: #1a237e;">ระบบรหัสยืนยันแบบไดนามิก</h6>
+                                    <p class="small text-muted mb-0" style="font-size: 0.8rem;">
+                                        รหัสยืนยันจะเปลี่ยนใหม่ทุก 30 วินาทีเพื่อป้องกันการทุจริต</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer border-0 pt-0 pb-4 px-4 d-flex justify-content-end">
+                        <button type="button" class="btn px-4 shadow-none btn-cancel-subtle" data-bs-dismiss="modal"
+                            style="border-radius: 12px; font-weight: 500; background-color: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; transition: all 0.2s ease;">
+                            ยกเลิก
+                        </button>
+
+                        <button type="submit" id="submitCreateClassBtn"
+                            class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+                            style="border-radius: 12px; box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3); font-weight: 500; transition: transform 0.2s;">
+                            <span id="btnTextClass">สร้างห้องเรียน</span>
+                            <span id="btnSpinnerClass" class="spinner-border spinner-border-sm d-none" role="status"
+                                aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div style="height: 100px;"></div>
+
+    {% include 'components/footer.html' %}
+
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+    <script>
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            {% with messages = get_flashed_messages(with_categories = true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+
+            if (typeof window.showAlert === 'function') {
+                window.showAlert("{{ category }}", "{{ message | safe }}");
+            } else {
+                Swal.fire({
+                    icon: "{{ category }}" === "danger" ? "error" : "{{ category }}",
+                    html: `
+                        <div class="mt-3">
+                            <h2 style="font-size: 1.6rem; font-weight: 800; color: #1e3a8a;">
+                                ${"{{ category }}" === "success" ? "เข้าสู่ระบบสำเร็จ" : "สร้างห้องเรียนสำเร็จ!"}
+                            </h2>
+                            <p style="font-size: 1.1rem; color: #64748b;">{{ message | safe }}</p>
+                        </div>
+                    `,
+                    showConfirmButton: true,
+                    confirmButtonColor: '#6a9cff',
+                    timer: 2500,
+                    timerProgressBar: true,
+                    toast: false,
+                    position: 'center',
+                    width: '28rem',
+                    padding: '1.5rem',
+                    customClass: {
+                        popup: 'rounded-4 shadow-lg border-0'
+                    },
+                    showClass: {
+                        popup: 'animate__animated animate__zoomIn animate__faster'
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOut animate__faster'
+                    }
+                });
+            }
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        });
+    </script>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            {% for category, message in messages %}
+
+            if (typeof window.showDashboardAlert === 'function') {
+                window.showDashboardAlert("{{ category }}", "{{ message | safe }}");
+            }
+
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
+    {% endwith %}
+</body>
+
+</html>

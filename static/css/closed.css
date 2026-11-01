@@ -1,0 +1,65 @@
+ body {
+     background-color: #f0f2f5;
+     font-family: 'Inter', 'Sarabun', sans-serif;
+     height: 100vh;
+ }
+
+ .status-card {
+     max-width: 450px;
+     width: 90%;
+     border: none;
+     border-radius: 24px;
+     background: #ffffff;
+     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+     transition: transform 0.3s ease;
+ }
+
+ .status-card:hover {
+     transform: translateY(-5px);
+ }
+
+ .icon-box {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     width: 100px;
+     height: 100px;
+     margin: 0 auto 20px auto;
+     background-color: #fff5f5;
+     border-radius: 50%;
+     font-size: 60px;
+ }
+
+ .icon-box i {
+     color: #dc3545;
+     text-shadow: none !important;
+     filter: none !important;
+     line-height: 1;
+ }
+
+ .text-header {
+     color: #1a1a1a;
+     font-weight: 600;
+     letter-spacing: -0.5px;
+ }
+
+ .text-sub {
+     color: #64748b;
+     font-size: 0.95rem;
+ }
+
+ .fade-in {
+     animation: fadeIn 1s cubic-bezier(0.22, 1, 0.36, 1);
+ }
+
+ @keyframes fadeIn {
+     from {
+         opacity: 0;
+         transform: translateY(30px);
+     }
+
+     to {
+         opacity: 1;
+         transform: translateY(0);
+     }
+ }

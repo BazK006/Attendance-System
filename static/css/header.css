@@ -1,0 +1,105 @@
+body {
+    font-family: 'Inter', 'Sarabun', sans-serif;
+}
+
+.custom-header {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    padding: 10px 0;
+    box-shadow: 0 4px 20px rgba(106, 156, 255, 0.3);
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-radius: 0 0 12px 12px;
+}
+
+.brand-container {
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+}
+
+/* --- แต่งข้อความ Logo  --- */
+.brand-text {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    transition: all 0.3s ease;
+}
+
+.brand-text i {
+    color: #ffffff;
+    font-size: 1.6rem;
+}
+
+.menu-link {
+    transition: 0.3s ease;
+    border-radius: 8px;
+}
+
+.menu-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+/* Profile */
+.custom-profile-trigger:hover .profile-icon,
+.custom-profile-trigger:hover .profile-text,
+.custom-profile-trigger.show .profile-icon,
+.custom-profile-trigger.show .profile-text {
+    color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.custom-profile-trigger:hover .profile-icon,
+.custom-profile-trigger.show .profile-icon {
+    transform: scale(1.1);
+}
+
+/* .style-info-row {
+    transition: all 0.2s ease-in-out;
+}
+
+.style-info-row:hover {
+    background-color: #f8f9fa !important;
+    padding-left: 0.75rem !important;
+}
+
+.style-info-row:hover .info-icon-box {
+    background-color: #ffffff !important;
+} */
+
+.logout-modern-btn {
+    background-color: transparent !important;
+    border: 1px solid #ffcbd1 !important;
+    color: #dc3545 !important;
+    transition: all 0.3s ease-in-out !important;
+}
+
+.logout-modern-btn:hover {
+    background-color: #dc3545 !important;
+    color: #ffffff !important;
+    border-color: #dc3545 !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+}
+
+.custom-profile-trigger::after {
+    display: none !important;
+}
+
+.edit-btn-yellow:hover {
+    background-color: #fef08a !important;
+    border-color: #eab308 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(202, 138, 4, 0.25) !important;
+}
+
+.edit-btn-yellow:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(202, 138, 4, 0.15) !important;
+}

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>จัดการข้อมูลนักเรียน - Admin Control Panel</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/shield-fill-check.svg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_student.css') }}">
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/manage_student.js') }}"></script>
+</head>
+
+<body style="font-family: 'Sarabun', sans-serif; background-color: #f8fafc;">
+
+    {% include 'components/admin_header.html' %}
+
+    <div class="container py-4 py-md-5">
+        <div
+            class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center gap-3 mb-4 student-page-enter student-page-header">
+
+            <div>
+                <h3 class="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                    <span
+                        class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3 p-2"
+                        style="width: 40px; height: 40px;">
+                        <i class="bi bi-people-fill fs-5"></i>
+                    </span>
+                    <span>จัดการข้อมูลนักเรียน</span>
+                </h3>
+                <p class="text-muted small mb-0 ms-1">ระบบเพิ่ม แก้ไข ค้นหา และกรองรายชื่อนักเรียนในระบบ</p>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2">
+                <div class="input-group search-box-custom position-relative" style="min-width: 240px;">
+                    <span class="input-group-text bg-white border-end-0 text-muted ps-3"
+                        style="border-radius: 12px 0 0 12px; border-color: #e2e8f0;">
+                        <i class="bi bi-search" style="font-size: 0.85rem;"></i>
+                    </span>
+                    <input type="text" id="searchStudentInput" class="form-control border-start-0 ps-0 pe-4 shadow-none"
+                        placeholder="ค้นหาชื่อ หรือรหัสนักเรียน..."
+                        style="border-radius: 0 12px 12px 0; border-color: #e2e8f0; font-size: 0.9rem;">
+
+                    <button
+                        class="btn position-absolute end-0 top-50 translate-middle-y text-danger border-0 bg-transparent"
+                        type="button" id="clearStudentSearch" style="display: none; z-index: 5; padding-right: 12px;">
+                        <i class="bi bi-x-lg" style="font-size: 0.85rem;"></i>
+                    </button>
+                </div>
+
+                <div class="input-group" style="width: auto;">
+                    <select id="classFilter" class="form-select bg-white filter-select shadow-none"
+                        style="border-radius: 12px; border-color: #e2e8f0; min-width: 150px; font-size: 0.9rem; cursor: pointer;">
+                        <option value="all">ทั้งหมด</option>
+                    </select>
+                </div>
+
+                <button type="button" id="openAddStudentAlert" data-url="{{ url_for('admin.add_student') }}"
+                    class="btn btn-primary px-3 py-2 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 flex-shrink-0"
+                    style="border-radius: 12px; font-size: .9rem; min-height: 40px;">
+
+                    <i class="bi bi-person-plus-fill fs-6"></i>
+                    <span>เพิ่มนักเรียนใหม่</span>
+                </button>
+
+            </div>
+        </div>
+
+        <div class="card border-0 p-3 shadow-sm rounded-4 student-page-enter student-page-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr class="text-muted small">
+                            <th class="ps-3">เลขที่</th>
+                            <th>รหัสนักเรียน</th>
+                            <th>ชื่อ-นามสกุล</th>
+                            <th>สถานศึกษา</th>
+                            <th>ชั้น/ห้อง</th>
+                            <th class="text-center">สร้างเมื่อ</th>
+                            <th class="text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        {% if students %}
+                        {% for student in students %}
+
+                        {% set short_level =
+                        student.education_level
+                        | replace('มัธยมศึกษา', 'ม')
+                        | replace('ประถมศึกษา', 'ป')
+                        | replace('มัธยม', 'ม')
+                        | replace('ประถม', 'ป')
+                        %}
+
+                        {% set class_display =
+                        short_level ~ '.' ~ student.student_level ~ '/' ~ student.student_room
+                        %}
+                        <tr id="row-{{ student.student_id }}" class="student-row" data-class="{{ class_display }}">
+
+                            <td class="fw-bold text-secondary ps-3">
+                                {{ student.student_number }}
+                            </td>
+
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary border px-3 py-2 rounded-2">
+                                    {{ student.student_id }}
+                                </span>
+                            </td>
+
+                            <td class="fw-semibold text-dark">
+                                {{ student.full_name }}
+                            </td>
+
+                            <td class="text-muted small">
+                                {{ student.school_name or "-" }}
+                            </td>
+
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill">
+                                    {{ class_display }}
+                                </span>
+                            </td>
+
+                            <td class="text-center small text-muted">
+                                {{ format_thai_date(student.created_at) if student.created_at else "-" }}
+                            </td>
+
+                            <td class="text-center">
+                                <button type="button" class="btn btn-outline-warning btn-sm edit-student-alert"
+                                    data-action="{{ url_for('admin.edit_student', id=student.id) }}"
+                                    data-csrf="{{ csrf_token() }}" data-full-name="{{ student.full_name }}"
+                                    data-student-id="{{ student.student_id }}"
+                                    data-student-number="{{ student.student_number }}"
+                                    data-education-level="{{ student.education_level or '' }}"
+                                    data-student-level="{{ student.student_level }}"
+                                    data-student-room="{{ student.student_room }}"
+                                    data-school-name="{{ student.school_name or '' }}" title="แก้ไขข้อมูลนักเรียน">
+
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-outline-danger delete-btn"
+                                    data-name="{{ student.full_name }}"
+                                    data-url="{{ url_for('admin.delete_student', id=student.id) }}">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                        <tr id="studentStatusRow" style="display: none;">
+                            <td colspan="7" class="text-center py-5">
+
+                                <!-- Loading Spinner -->
+                                <div id="studentSearchLoading" style="display: none;">
+                                    <div class="d-flex flex-column align-items-center justify-content-center gap-3">
+
+                                        <div class="spinner-border text-info" role="status"
+                                            style="width: 2.5rem; height: 2.5rem;">
+                                            <span class="visually-hidden">กำลังค้นหา...</span>
+                                        </div>
+
+                                        <div class="fw-semibold text-info">
+                                            กำลังค้นหาข้อมูลนักเรียน...
+                                        </div>
+
+                                        <div class="text-muted small">
+                                            กรุณารอสักครู่
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- ค้นหาแล้วไม่พบข้อมูล -->
+                                <div id="studentNoData" style="display: none;">
+                                    <div class="d-flex flex-column align-items-center justify-content-center gap-2">
+
+                                        <div class="d-flex align-items-center justify-content-center rounded-circle mb-2"
+                                            style="
+                        width: 76px;
+                        height: 76px;
+                        background: #ecfeff;
+                        color: #0891b2;
+                    ">
+                                            <i class="bi bi-search" style="font-size: 2.2rem;" aria-hidden="true"></i>
+                                        </div>
+
+                                        <h6 class="fw-bold text-dark mb-0">
+                                            ไม่พบข้อมูลนักเรียนที่ค้นหา
+                                        </h6>
+
+                                        <p class="text-muted small mb-0">
+                                            ลองตรวจสอบชื่อ รหัสนักเรียน หรือเปลี่ยนคำค้นหา
+                                        </p>
+
+                                    </div>
+                                </div>
+
+                            </td>
+                        </tr>
+
+                        <!-- ไม่มีนักเรียนในห้องที่เลือก -->
+                        <tr id="noDataRow" style="display: none;">
+                            <td colspan="7" class="text-center py-5">
+
+                                <div class="d-flex flex-column align-items-center justify-content-center gap-2">
+
+                                    <div class="d-flex align-items-center justify-content-center rounded-circle mb-2"
+                                        style="
+                                            width: 76px;
+                                            height: 76px;
+                                            background: #ecfeff;
+                                            color: #0891b2;
+                                        ">
+                                        <i class="bi bi-people" style="font-size: 2.2rem;" aria-hidden="true"></i>
+                                    </div>
+
+                                    <h6 class="fw-bold text-dark mb-0">
+                                        ไม่มีข้อมูลนักเรียนในห้องที่เลือก
+                                    </h6>
+
+                                    <p class="text-muted small mb-2">
+                                        ยังไม่มีรายชื่อนักเรียนในห้องนี้
+                                    </p>
+
+                                    <span class="badge bg-info-subtle text-info border rounded-pill px-3 py-2">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        กรุณาตรวจสอบห้องเรียนที่เลือก
+                                    </span>
+
+                                </div>
+
+                            </td>
+                        </tr>
+
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const messages = {{ messages | tojson
+        }};
+
+        const alertTypes = {
+            student_added: {
+                icon: 'success',
+                title: 'เพิ่มนักเรียนใหม่สำเร็จ!'
+            },
+            student_updated: {
+                icon: 'success',
+                title: 'แก้ไขข้อมูลนักเรียนสำเร็จ!'
+            },
+            student_deleted: {
+                icon: 'success',
+                title: 'ลบนักเรียนสำเร็จ!'
+            },
+            teacher_added: {
+                icon: 'success',
+                title: 'เพิ่มคุณครูใหม่สำเร็จ!'
+            },
+            teacher_updated: {
+                icon: 'success',
+                title: 'แก้ไขข้อมูลคุณครูสำเร็จ!'
+            },
+            teacher_deleted: {
+                icon: 'success',
+                title: 'ลบคุณครูสำเร็จ!'
+            },
+            success: {
+                icon: 'success',
+                title: 'ดำเนินการสำเร็จ!'
+            },
+            danger: {
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!'
+            },
+            error: {
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด!'
+            },
+            warning: {
+                icon: 'warning',
+                title: 'แจ้งเตือน!'
+            },
+            info: {
+                icon: 'info',
+                title: 'ข้อมูล'
+            }
+        };
+
+        for (const [category, message] of messages) {
+            const alert = alertTypes[category] || {
+                icon: 'info',
+                title: 'แจ้งเตือน'
+            };
+
+            await Swal.fire({
+                icon: alert.icon,
+                title: alert.title,
+                text: message,
+                confirmButtonText: 'ตกลง',
+                buttonsStyling: false,
+                customClass: {
+                    confirmButton: 'btn btn-primary px-4 py-2'
+                },
+                didOpen: () => {
+                    const content = Swal.getHtmlContainer();
+
+                    if (content) {
+                        content.style.whiteSpace = 'pre-line';
+                    }
+                }
+            });
+        }
+        });
+    </script>
+    {% endif %}
+    {% endwith %}
+
+</body>
+
+</html>

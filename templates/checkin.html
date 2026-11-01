@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงชื่อเข้าเรียน | {{ s.subject_name }}</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Sarabun:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/person_check.svg') }}">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --bg-color: #f4f7fe;
+        }
+
+        body {
+            font-family: 'Inter', 'Sarabun', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background-color: var(--bg-color);
+            color: #333;
+        }
+
+        .card-custom {
+            border-radius: 24px;
+            border: none;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-control-lg {
+            border-radius: 15px;
+            border: 2px solid #eee;
+            background-color: #fafbfe;
+            transition: all 0.3s;
+        }
+
+        .form-control-lg:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 4px rgba(78, 115, 223, 0.1);
+            background-color: #fff;
+        }
+
+        .timer-badge {
+            background: #fff;
+            border: 2px solid #edf2ff;
+            border-radius: 15px;
+            padding: 8px 15px;
+            display: inline-block;
+        }
+
+        .status-online {
+            color: #2ecc71;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .card-expired {
+            opacity: 0.6;
+            pointer-events: none;
+            filter: grayscale(0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <div id="status-container" class="badge bg-white text-dark shadow-sm px-3 py-2 rounded-pill border">
+                        <i class="bi bi-circle-fill status-online me-2 small"></i>
+                        <span class="text-success fw-semibold">เปิดรับเช็คชื่อ</span>
+                    </div>
+
+                    <div class="timer-badge shadow-sm">
+                        <i class="bi bi-clock-history text-danger me-2"></i>
+                        <span id="timer" class="fw-bold text-dark" data-start="{{ s.start_time.isoformat() }}"
+                            data-minutes="{{ s.allowed_minutes }}">คำนวณเวลา...</span>
+                    </div>
+                </div>
+
+                <div id="checkin-card"
+                    class="card card-custom bg-white p-4 p-md-5 mb-4 border-top border-primary border-5">
+                    <div class="text-center mb-4">
+
+                        <h3 class="fw-semibold text-primary mb-2">ลงชื่อเข้าเรียน</h3>
+                        <div class="mb-3 text-center">
+                            <div class="d-flex justify-content-center align-items-center flex-wrap gap-2">
+                                <h5 class="fw-semibold mb-0">
+                                    <span class="text-dark">รหัสวิชา {{ s.id_subject }}</span>
+                                    <span class="mx-2 text-muted">|</span>
+                                    <span class="text-dark">วิชา {{ s.subject_name }}</span>
+                                </h5>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center align-items-center flex-wrap text-muted small gap-3">
+                            <div>
+                                <i class="bi bi-door-open-fill me-1"></i>
+                                <span>ห้อง {{ s.room_name }}</span>
+                            </div>
+
+                            <span class="d-none d-md-inline"></span>
+
+                            <div>
+                                <i class="bi bi-person-badge-fill me-1"></i>
+                                <span>ครูผู้สอน: {{ s.teacher.full_name }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="checkinForm">
+                        <input type="hidden" name="session_id" value="{{ s.id }}">
+
+                        <input type="hidden" name="student_level" id="student_level">
+                        <input type="hidden" name="student_room" id="student_room">
+                        <input type="hidden" name="student_number" id="student_number">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">รหัสนักเรียน</label>
+                            <input type="text" name="student_id" id="student_id"
+                                class="form-control form-control-lg input-lockable" required
+                                placeholder="กรอกรหัสนักเรียน 6 หลัก">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">ชื่อ - นามสกุล</label>
+                            <input type="text" name="student_name" id="student_name"
+                                class="form-control form-control-lg bg-light" readonly required
+                                placeholder="กรุณากรอกรหัสนักเรียนก่อน">
+                            <div id="student_info_display" class="small mt-4 text-primary fw-bold"
+                                style="display: none;"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-primary">รหัสยืนยัน</label>
+                            <input type="text" name="secret_key" id="secret_key"
+                                class="form-control form-control-lg border-primary text-center fw-bold input-lockable"
+                                required placeholder="XXXXXX"
+                                style="letter-spacing: 8px; text-transform: uppercase; color: var(--primary-color);"
+                                oninput="this.value = this.value.toUpperCase().replace(/\s/g, '')">
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="btn btn-primary btn-lg w-100 py-3 fw-bold shadow-sm"
+                            style="border-radius: 15px; transition: all 0.3s;" disabled>
+                            <i class="bi bi-check2-circle me-2" id="btnIcon"></i> <span
+                                id="btnText">รอการดึงข้อมูลรายชื่อ...</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.API_CONFIG = {
+            getStudent: "{{ url_for('check_in.get_student_info', session_id=s.id, student_id='') }}",
+            submit: "{{ url_for('check_in.submit_attendance') }}",
+            redirect: "{{ url_for('class_session.session_room', session_id=s.id) }}",
+            csrfToken: "{{ csrf_token() }}"
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/check_in.js') }}"></script>
+</body>
+
+</html>

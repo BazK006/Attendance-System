@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ตั้งค่าโปรไฟล์ครู | Attendance System</title>
+    <meta name="theme-color" content="#f5f7fc">
+    <meta name="description" content="ตั้งค่าข้อมูลโปรไฟล์สำหรับระบบบันทึกการเข้าเรียน">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/person_check.svg') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+
+            background:
+                radial-gradient(circle at 5% 5%,
+                    rgba(106, 156, 255, 0.10),
+                    transparent 32%),
+                #f5f8ff;
+
+            color: #172033;
+            font-family: "Sarabun", system-ui, sans-serif;
+            font-size: 16px;
+            line-height: 1.65;
+        }
+
+        .setup-wrapper {
+            min-height: 100vh;
+            padding: 40px 16px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .setup-card {
+            position: relative;
+            width: 100%;
+            max-width: 580px;
+            overflow: hidden;
+
+            background: #ffffff;
+            border: 1px solid #e6eaf2;
+            border-radius: 22px;
+
+            box-shadow:
+                0 20px 60px rgba(23, 32, 51, 0.07),
+                0 2px 8px rgba(23, 32, 51, 0.03);
+        }
+
+        .setup-card::before {
+            content: "";
+            display: block;
+            height: 5px;
+
+            background: linear-gradient(135deg,
+                    #6a9cff 0%,
+                    #4a80eb 100%);
+        }
+
+        .setup-card-body {
+            padding: 36px 40px;
+        }
+
+        .profile-icon {
+            width: 68px;
+            height: 68px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 20px;
+            background: #edf4ff;
+            border: 1px solid #dce9ff;
+
+            color: #4a80eb;
+            font-size: 32px;
+
+            margin-bottom: 18px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 5px 12px;
+            margin-bottom: 12px;
+
+            background: #edf4ff;
+            border: 1px solid #dce9ff;
+            border-radius: 999px;
+
+            color: #3568d4;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .page-title {
+            margin-bottom: 8px;
+
+            color: #172033;
+            font-size: clamp(24px, 5vw, 29px);
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .page-description {
+            max-width: 410px;
+            margin: 0 auto;
+
+            color: #536174;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            margin: 28px 0 18px;
+            padding-bottom: 11px;
+
+            border-bottom: 1px solid #eaf0f8;
+
+            color: #26334a;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .section-heading i {
+            color: #4a80eb;
+            font-size: 20px;
+        }
+
+        .form-item {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 7px;
+
+            color: #344054;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .required-mark {
+            color: #c62828;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 50px;
+            padding: 11px 14px;
+
+            border: 1px solid #d7deea;
+            border-radius: 12px;
+
+            background-color: #ffffff;
+            color: #172033;
+
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.5;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background-color 0.2s ease;
+        }
+
+        .form-control::placeholder {
+            color: #7b8798;
+            opacity: 1;
+        }
+
+        .form-control:hover,
+        .form-select:hover {
+            border-color: #a8c3f7;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #4a80eb;
+
+            background-color: #ffffff;
+            color: #172033;
+
+            box-shadow: 0 0 0 4px rgba(74, 128, 235, 0.18);
+            outline: none;
+        }
+
+        .form-control[readonly] {
+            background-color: #f5f8fd !important;
+            color: #43516a !important;
+            opacity: 1;
+            cursor: default;
+        }
+
+        .form-control[readonly]:focus {
+            border-color: #d7deea;
+            box-shadow: none;
+        }
+
+        .account-field {
+            background-color: #f5f8fd !important;
+            color: #43516a !important;
+        }
+
+        .teacher-id {
+            color: #3568d4 !important;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+        }
+
+        .input-group {
+            align-items: stretch;
+        }
+
+        .input-group .input-group-text {
+            min-width: 48px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid #d7deea;
+            border-radius: 12px 0 0 12px;
+
+            background: #f1f5fc;
+            color: #536b91;
+
+            font-size: 18px;
+        }
+
+        .input-group>.form-control {
+            min-width: 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .input-group:focus-within .input-group-text {
+            border-color: #4a80eb;
+            background: #edf4ff;
+            color: #4a80eb;
+        }
+
+        .input-group>.form-control:focus {
+            border-color: #4a80eb;
+        }
+
+        .form-help {
+            display: flex;
+            align-items: flex-start;
+            gap: 7px;
+
+            margin-top: 8px;
+
+            color: #536174;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .form-help i {
+            flex-shrink: 0;
+            margin-top: 3px;
+            color: #4a80eb;
+        }
+
+        .form-text {
+            margin-top: 8px;
+            color: #536174 !important;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .form-text i {
+            color: #4a80eb;
+        }
+
+        #other_department {
+            margin-top: 12px;
+
+            border: 1px solid #d7deea;
+            border-radius: 12px;
+
+            background-color: #ffffff;
+        }
+
+        #other_department:focus {
+            border-color: #4a80eb;
+            box-shadow: 0 0 0 4px rgba(74, 128, 235, 0.18);
+        }
+
+        .btn-submit {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+
+            width: 100%;
+            min-height: 54px;
+            padding: 12px 18px;
+
+            border: 2px solid transparent;
+            border-radius: 14px;
+
+            background: linear-gradient(135deg,
+                    #6a9cff 0%,
+                    #4a80eb 100%);
+
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 17px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            box-shadow: 0 5px 14px rgba(74, 128, 235, 0.18);
+
+            transition:
+                background 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg,
+                    #5789ed 0%,
+                    #3568d4 100%);
+
+            color: #ffffff;
+            box-shadow: 0 7px 18px rgba(53, 104, 212, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:active {
+            background: #3568d4;
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(53, 104, 212, 0.18);
+        }
+
+        .btn-submit:focus-visible,
+        .back-link:focus-visible {
+            outline: 3px solid #4a80eb;
+            outline-offset: 4px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            min-height: 44px;
+            padding: 6px 10px;
+
+            border-radius: 8px;
+
+            color: #475569;
+            font-size: 15px;
+            font-weight: 500;
+            text-decoration: none;
+
+            transition:
+                background-color 0.2s ease,
+                color 0.2s ease;
+        }
+
+        .back-link:hover {
+            background: #edf4ff;
+            color: #3568d4;
+        }
+
+        .form-footer {
+            margin-top: 24px;
+            padding-top: 20px;
+
+            border-top: 1px solid #eaf0f8;
+            text-align: center;
+        }
+
+        .security-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            margin-top: 18px;
+
+            color: #536174;
+            font-size: 13px;
+        }
+
+        .security-note i {
+            color: #16804a;
+        }
+
+        @media (max-width: 576px) {
+            .setup-wrapper {
+                padding: 20px 12px;
+                align-items: flex-start;
+            }
+
+            .setup-card {
+                border-radius: 18px;
+            }
+
+            .setup-card-body {
+                padding: 27px 20px;
+            }
+
+            .profile-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 17px;
+                font-size: 28px;
+            }
+
+            .page-description {
+                font-size: 15px;
+            }
+
+            .section-heading {
+                margin-top: 26px;
+            }
+
+            .form-label {
+                font-size: 15px;
+            }
+
+            .form-control,
+            .form-select {
+                min-height: 50px;
+                font-size: 16px;
+            }
+
+            .btn-submit {
+                min-height: 54px;
+                font-size: 16px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="setup-wrapper">
+        <section class="setup-card" aria-labelledby="page-title">
+
+            <div class="setup-card-body">
+                <header class="text-center mb-4">
+                    <div class="profile-icon" aria-hidden="true">
+                        <i class="bi bi-person-vcard"></i>
+                    </div>
+
+                    <div>
+                        <span class="eyebrow">
+                            <i class="bi bi-check-circle" aria-hidden="true"></i>
+                            ตั้งค่าบัญชีครั้งแรก
+                        </span>
+                    </div>
+
+                    <h1 id="page-title" class="page-title">
+                        ตั้งค่าโปรไฟล์คุณครู
+                    </h1>
+
+                    <p class="page-description">
+                        กรอกข้อมูลด้านล่างให้ครบถ้วน
+                        เพื่อเริ่มใช้งานระบบบันทึกการเข้าเรียน
+                    </p>
+                </header>
+
+                <form action="{{ url_for('auth.complete_profile') }}" method="POST">
+
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <h2 class="section-heading">
+                        <i class="bi bi-shield-check" aria-hidden="true"></i>
+                        ข้อมูลบัญชี
+                    </h2>
+
+                    <div class="form-item">
+                        <label for="email" class="form-label">
+                            อีเมลที่เชื่อมต่อกับบัญชี
+                        </label>
+
+                        <div class="input-group">
+                            <span class="input-group-text" aria-hidden="true">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+
+                            <input type="email" id="email" class="form-control account-field" value="{{ email }}"
+                                readonly aria-describedby="email-help">
+                        </div>
+
+                        <div id="email-help" class="form-help">
+                            <i class="bi bi-info-circle" aria-hidden="true"></i>
+                            <span>
+                                อีเมลนี้มาจากบัญชีที่คุณใช้เข้าสู่ระบบ
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-item">
+                        <label for="teacher_id" class="form-label">
+                            รหัสประจำตัวครู
+                            <span class="text-muted fw-normal">
+                                (Teacher ID)
+                            </span>
+                        </label>
+
+                        <div class="input-group">
+                            <span class="input-group-text" aria-hidden="true">
+                                <i class="bi bi-person-badge"></i>
+                            </span>
+
+                            <input type="text" id="teacher_id" class="form-control account-field teacher-id"
+                                value="{{ teacher_id }}" readonly aria-describedby="teacher-id-help">
+                        </div>
+
+                        <div id="teacher-id-help" class="form-help">
+                            <i class="bi bi-info-circle" aria-hidden="true"></i>
+                            <span>
+                                ระบบสร้างรหัสประจำตัวให้อัตโนมัติ
+                                โดยอ้างอิงตามปี พ.ศ.
+                            </span>
+                        </div>
+                    </div>
+
+                    <h2 class="section-heading">
+                        <i class="bi bi-person-lines-fill" aria-hidden="true"></i>
+                        ข้อมูลคุณครู
+                    </h2>
+
+                    <div class="form-item">
+                        <label for="full_name" class="form-label">
+                            ชื่อ - นามสกุล
+                            <span class="required-mark" aria-hidden="true">*</span>
+                            <span class="visually-hidden">
+                                จำเป็นต้องกรอก
+                            </span>
+                        </label>
+
+                        <input type="text" class="form-control" id="full_name" name="full_name"
+                            value="{{ default_name }}" autocomplete="name" maxlength="150" placeholder="เช่น สมชาย ใจดี"
+                            required>
+                    </div>
+
+                    <div class="form-item">
+                        <label for="school_name" class="form-label">
+                            ชื่อสถานศึกษาที่สอน
+                            <span class="required-mark" aria-hidden="true">*</span>
+                            <span class="visually-hidden">
+                                จำเป็นต้องกรอก
+                            </span>
+                        </label>
+
+                        <input type="text" class="form-control" id="school_name" name="school_name"
+                            autocomplete="organization" maxlength="200" placeholder="เช่น โรงเรียนมัธยมวิทยา" required>
+                    </div>
+
+                    <div class="form-item mb-4">
+                        <label for="department" class="form-label">
+                            กลุ่มสาระการเรียนรู้
+                            <span class="required-mark" aria-hidden="true">*</span>
+                            <span class="visually-hidden">
+                                จำเป็นต้องเลือก
+                            </span>
+                        </label>
+
+                        <select class="form-select" id="department" name="department"
+                            aria-controls="other-department-wrapper" required>
+
+                            <option value="" disabled selected>
+                                -- กรุณาเลือกกลุ่มสาระ --
+                            </option>
+
+                            <option value="วิทยาศาสตร์และเทคโนโลยี">
+                                วิทยาศาสตร์และเทคโนโลยี
+                            </option>
+
+                            <option value="คณิตศาสตร์">
+                                คณิตศาสตร์
+                            </option>
+
+                            <option value="ภาษาต่างประเทศ">
+                                ภาษาต่างประเทศ
+                            </option>
+
+                            <option value="ภาษาไทย">
+                                ภาษาไทย
+                            </option>
+
+                            <option value="สังคมศึกษา ศาสนา และวัฒนธรรม">
+                                สังคมศึกษา ศาสนา และวัฒนธรรม
+                            </option>
+
+                            <option value="ศิลปะ">
+                                ศิลปะ
+                            </option>
+
+                            <option value="การงานอาชีพ">
+                                การงานอาชีพ
+                            </option>
+
+                            <option value="สุขศึกษาและพลศึกษา">
+                                สุขศึกษาและพลศึกษา
+                            </option>
+
+                            <option value="อื่นๆ">
+                                อื่น ๆ (โปรดระบุ)
+                            </option>
+
+                        </select>
+
+                        <div id="other-department-wrapper" class="mt-3 d-none">
+
+                            <label for="other_department" class="form-label">
+                                โปรดระบุกลุ่มสาระการเรียนรู้
+                                <span class="required-mark" aria-hidden="true">*</span>
+                            </label>
+
+                            <input type="text" class="form-control" id="other_department" name="other_department"
+                                maxlength="150" placeholder="กรอกชื่อกลุ่มสาระการเรียนรู้"
+                                aria-describedby="other-department-help" disabled>
+
+                            <div id="other-department-help" class="form-help">
+                                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                                <span>
+                                    กรุณาระบุข้อมูลในช่องนี้ก่อนบันทึก
+                                </span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-submit">
+                        <i class="bi bi-check-circle" aria-hidden="true"></i>
+                        บันทึกข้อมูลและเข้าสู่ระบบ
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </button>
+
+                    <footer class="form-footer">
+
+                        <a href="{{ url_for('auth.cancel_setup') }}" class="back-link">
+                            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                            ยกเลิกและกลับไปหน้าล็อกอิน
+                        </a>
+
+                        <div class="security-note">
+                            <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+                            <span>
+                                กรุณาตรวจสอบข้อมูลก่อนบันทึก
+                            </span>
+                        </div>
+
+                    </footer>
+
+                </form>
+
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const departmentSelect =
+                document.getElementById("department");
+
+            const otherWrapper =
+                document.getElementById("other-department-wrapper");
+
+            const otherInput =
+                document.getElementById("other_department");
+
+            function toggleOtherDept() {
+                const isOther =
+                    departmentSelect.value === "อื่นๆ";
+
+                otherWrapper.classList.toggle("d-none", !isOther);
+
+                otherInput.disabled = !isOther;
+                otherInput.required = isOther;
+
+                if (!isOther) {
+                    otherInput.value = "";
+                }
+            }
+
+            departmentSelect.addEventListener(
+                "change",
+                toggleOtherDept
+            );
+
+            toggleOtherDept();
+        });
+    </script>
+
+</body>
+
+</html>

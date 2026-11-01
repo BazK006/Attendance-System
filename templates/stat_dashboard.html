@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สถิติการเข้าเรียนวิชา{{ s.subject_name }} - ระบบเช็คชื่อนักเรียน</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Sarabun:wght@300;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/bar-chart-fill.svg') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stat_dashboard.css') }}">
+
+    <style>
+        @media (max-width: 575.98px) {
+            h2 {
+                font-size: 1.25rem !important;
+            }
+
+            .btn-refresh-text,
+            .dropdown {
+                width: 100%;
+            }
+
+            .stat-value {
+                font-size: 1.5rem !important;
+            }
+
+            .chart-responsive {
+                height: 250px !important;
+            }
+        }
+
+        @media (min-width: 576px) and (max-width: 991.98px) {
+            .chart-responsive {
+                height: 300px !important;
+            }
+        }
+
+        .rounded-4 {
+            border-radius: 1rem !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container py-4 py-md-5">
+        <div class="row mb-4 gx-3 align-items-center animate-in">
+
+            <button onclick="window.history.back()"
+                class="btn btn-white shadow-sm rounded-circle d-flex align-items-center justify-content-center"
+                style="position: fixed; top: 20px; left: 20px; z-index: 1000; width: 45px; height: 45px; border: 1px solid #e2e8f0; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); transition: transform 0.2s ease;">
+                <i class="bi bi-chevron-left fs-5" style="color: #334155;"></i>
+            </button>
+
+            <!-- Subject Name -->
+            <div class="col-12 col-md mb-3 mb-md-0 text-center text-md-start">
+                <h2 class="fw-bold text-dark mb-2 fs-3 fs-md-2">
+                    <i class="bi bi-bar-chart-fill me-2"></i>
+                    รายงานสถิติการเข้าเรียน ({{ s.room_name }})
+                </h2>
+                <div class="d-flex align-items-center justify-content-center justify-content-md-start flex-wrap gap-2">
+                    <span
+                        class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1 shadow-sm"
+                        style="font-weight: 600; font-size: 14px;">
+                        {{ s.id_subject }}
+                    </span>
+                    <span class="text-muted text-truncate" style="max-width: 100%; font-size: 16px;">
+                        วิชา {{ s.subject_name }}
+                    </span>
+                </div>
+            </div>
+
+            <div
+                class="col-12 col-md-auto d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3">
+                <!-- <div class="text-center text-sm-end">
+                    <small class="text-muted d-block text-nowrap" style="font-size: 0.75rem;">อัปเดตล่าสุด</small>
+                    <span class="fw-bold text-secondary" style="font-size: 0.85rem;">
+                        <i class="bi bi-clock-history me-1"></i>{{ format_thai_time() }}
+                    </span>
+                </div> -->
+
+                <div class="d-flex align-items-center gap-2">
+
+                    <button onclick="location.reload()"
+                        class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-sm fw-medium">
+                        <i class="bi bi-arrow-clockwise me-1"></i>
+                        <span>รีเฟรช</span>
+                    </button>
+
+                    <div class="dropdown">
+                        <button
+                            class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 shadow-sm dropdown-toggle"
+                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots-vertical"></i>
+                            <span>เพิ่มเติม</span>
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2.5 rounded-3 mt-2"
+                            style="min-width: 220px;">
+                            <li>
+                                <h6 class="dropdown-header text-muted small fw-bold px-3 py-2">รายงานหน้าสถิติ</h6>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center py-2 px-3 rounded-2"
+                                    href="{{ url_for('stat_dashboard.export_excel_stats', session_id=s.id) }}">
+                                    <i class="bi bi-file-earmark-excel-fill text-success me-2 fs-6"></i>
+                                    <span class="fw-medium">Export Excel (.xlsx)</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center py-2 px-3 rounded-2"
+                                    href="{{ url_for('stat_dashboard.export_pdf_stats', session_id=s.id) }}">
+                                    <i class="bi bi-file-earmark-pdf-fill text-danger me-2 fs-6"></i>
+                                    <span class="fw-medium">Export PDF (.pdf)</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center py-2 px-3 rounded-2"
+                                    href="{{ url_for('stat_dashboard.export_csv_stats', session_id=s.id) }}">
+                                    <i class="bi bi-file-earmark-text-fill text-primary me-2 fs-6"></i>
+                                    <span class="fw-medium">Export CSV (.csv)</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="info-bar mb-4 animate-in delay-1 shadow-sm rounded-4 p-3 bg-white border border-light">
+            <div class="row align-items-center text-center text-md-start g-3">
+                <div class="col-6 col-md-3 col-xl-3 border-end">
+                    <small class="text-muted d-block">ห้องเรียน</small>
+                    <span class="fw-bold text-dark"><i class="bi bi-door-open me-1 text-primary"></i>{{s.room_name
+                        }}</span>
+                </div>
+                <div class="col-6 col-md-4 col-xl-5 border-end-md">
+                    <small class="text-muted d-block">ครูผู้สอน</small>
+                    <span class="fw-bold text-dark"><i class="bi bi-person-badge me-1 text-primary"></i>{{
+                        s.teacher.full_name if s.teacher else 'ไม่ระบุชื่อ' }}</span>
+                </div>
+                <div class="col-12 col-md-5 col-xl-4 mt-3 mt-md-0 text-md-end">
+                    <small class="text-muted d-block">วันที่เริ่ม</small>
+                    <span class="fw-bold text-dark">
+                        <i class="bi bi-calendar3 me-1 text-primary"></i>{{ format_thai_date(s.created_at) }}
+                        <small class="text-muted ms-1" style="font-size: 0.8rem;">เวลา {{ format_thai_time(s.created_at)
+                            }}</small>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 g-xl-4 mb-4 mb-xl-5">
+            <div class="col-6 col-md-3">
+                <div
+                    class="stat-card card-present p-3 p-xl-4 animate-in delay-1 h-100 border-top border-success border-5 shadow-sm rounded-4">
+                    <div class="stat-label text-success mb-1 mb-xl-2 fw-semibold"><i
+                            class="bi bi-check-circle me-1"></i>มาเรียน</div>
+                    <div class="stat-value text-dark fs-2 fs-xl-1">{{ stats.present }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div
+                    class="stat-card card-late p-3 p-xl-4 animate-in delay-2 h-100 border-top border-warning border-5 shadow-sm rounded-4">
+                    <div class="stat-label text-warning mb-1 mb-xl-2 fw-semibold"><i class="bi bi-clock me-1"></i>มาสาย
+                    </div>
+                    <div class="stat-value text-dark fs-2 fs-xl-1">{{ stats.late }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div
+                    class="stat-card card-leave p-3 p-xl-4 animate-in delay-3 h-100 border-top border-info border-5 shadow-sm rounded-4">
+                    <div class="stat-label text-info mb-1 mb-xl-2 fw-semibold"><i class="bi bi-envelope me-1"></i>ลา
+                    </div>
+                    <div class="stat-value text-dark fs-2 fs-xl-1">{{ stats.leave }}</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div
+                    class="stat-card card-absent p-3 p-xl-4 animate-in delay-4 h-100 border-top border-danger border-5 shadow-sm rounded-4">
+                    <div class="stat-label text-danger mb-1 mb-xl-2 fw-semibold"><i
+                            class="bi bi-x-circle me-1"></i>ขาดเรียน</div>
+                    <div class="stat-value text-dark fs-2 fs-xl-1">{{ stats.absent }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 g-xl-4 mb-4">
+            <div class="col-12 col-lg-5 col-xl-4">
+                <div class="chart-container bg-white p-4 rounded-4 shadow-sm h-100 animate-in delay-5">
+                    <h6 class="fw-bold mb-4 text-center text-lg-start"><i
+                            class="bi bi-pie-chart-fill me-2 text-primary"></i>สัดส่วนการมาเรียน</h6>
+                    <div class="chart-responsive" style="position: relative; height: 280px;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-7 col-xl-8">
+                <div class="chart-container bg-white p-4 rounded-4 shadow-sm h-100 animate-in delay-5">
+                    <h6 class="fw-bold mb-4 text-center text-lg-start"><i
+                            class="bi bi-bar-chart-steps me-2 text-primary"></i>จำนวนนักเรียนแยกสถานะ</h6>
+                    <div class="chart-responsive" style="position: relative; height: 280px;">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 g-md-4 mt-2 animate-in delay-5">
+
+            <!-- มาเรียน -->
+            <div class="col-12 col-lg-6 animate-up delay-1">
+                <div class="chart-container p-4 h-100 border-top border-success border-5 shadow-sm bg-white rounded-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-success mb-0">
+                            <i class="bi bi-check-circle-fill me-2"></i>มาเรียน
+                        </h6>
+                        <span class="badge rounded-pill bg-success text-white px-3">{{ stats.present }} คน</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% set present_ids = attendees | selectattr('status', 'equalto', 'present') |
+                        map(attribute='student_id') | list %}
+                        {% set present_display_list = student_list | selectattr('student_id', 'in', present_ids) |
+                        sort(attribute='student_number') %}
+
+                        {% for std in present_display_list %}
+                        <span
+                            class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-2 fw-normal"
+                            style="cursor: pointer;" onclick="showQuickDetail('{{ std.student_id }}', {{ s.id }})">
+                            <small class="fw-bold me-1">{{ std.student_number }}.</small>
+                            {{ std.full_name }}
+                            <small class="ms-1 opacity-75">({{ std.room_tag }})</small>
+                        </span>
+                        {% else %}
+                        <div class="text-center w-100 py-3">
+                            <small class="text-muted italic">ยังไม่มีข้อมูลการมาเรียน</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- มาสาย -->
+            <div class="col-12 col-lg-6 animate-up delay-2">
+                <div class="chart-container p-4 h-100 border-top border-warning border-5 shadow-sm bg-white rounded-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-warning-emphasis mb-0">
+                            <i class="bi bi-clock-fill me-2"></i>มาสาย
+                        </h6>
+                        <span class="badge rounded-pill bg-warning text-dark px-3">{{ stats.late }} คน</span>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        {% set late_ids = attendees | selectattr('status', 'equalto', 'late') |
+                        map(attribute='student_id') | list %}
+                        {% set late_display_list = student_list | selectattr('student_id', 'in', late_ids) |
+                        sort(attribute='student_number') %}
+
+                        {% for std in late_display_list %}
+                        <span
+                            class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3 py-2 fw-normal"
+                            style="cursor: pointer;" onclick="showQuickDetail('{{ std.student_id }}', {{ s.id }})">
+                            <small class="fw-bold me-1">{{ std.student_number }}.</small>
+                            {{ std.full_name }}
+                            <small class="ms-1 opacity-75">({{ std.room_tag }})</small>
+                        </span>
+                        {% else %}
+                        <div class="text-center w-100 py-3">
+                            <small class="text-muted italic">ไม่มีข้อมูลนักเรียนมาสาย</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ลา -->
+            <div class="col-12 col-lg-6 animate-up delay-3">
+                <div class="chart-container p-4 h-100 border-top border-info border-5 shadow-sm bg-white rounded-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-info-emphasis mb-0">
+                            <i class="bi bi-envelope-fill me-2"></i>ลา
+                        </h6>
+                        <span class="badge rounded-pill bg-info text-white px-3">{{ stats.leave }} คน</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% set leave_ids = attendees | selectattr('status', 'equalto', 'leave') |
+                        map(attribute='student_id') | list %}
+                        {% set leave_display_list = student_list | selectattr('student_id', 'in', leave_ids) |
+                        sort(attribute='student_number') %}
+
+                        {% for std in leave_display_list %}
+                        <span
+                            class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill px-3 py-2 fw-normal"
+                            style="cursor: pointer;" onclick="showQuickDetail('{{ std.student_id }}', {{ s.id }})">
+                            <small class="fw-bold me-1">{{ std.student_number }}.</small>
+                            {{ std.full_name }}
+                            <small class="ms-1 opacity-75">({{ std.room_tag }})</small>
+                        </span>
+                        {% else %}
+                        <div class="text-center w-100 py-3">
+                            <small class="text-muted italic">ไม่มีข้อมูลการลา</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ขาดเรียน -->
+            <div class="col-12 col-lg-6 animate-up delay-4">
+                <div class="chart-container p-4 h-100 border-top border-danger border-5 shadow-sm bg-white rounded-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-danger mb-0">
+                            <i class="bi bi-x-circle-fill me-2"></i>ขาดเรียน
+                        </h6>
+                        <span class="badge rounded-pill bg-danger text-white px-3">{{ stats.absent }} คน</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% set present_ids = attendees | selectattr('status', 'ne', 'absent') |
+                        map(attribute='student_id') | list %}
+                        {% set absent_list = student_list | rejectattr('student_id', 'in', present_ids) |
+                        sort(attribute='student_number') %}
+
+                        {% for std in absent_list %}
+                        <span
+                            class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-normal"
+                            style="cursor: pointer;" onclick="showQuickDetail('{{ std.student_id }}', {{ s.id }})">
+                            <small class="fw-bold me-1">{{ std.student_number }}.</small>
+                            {{ std.full_name }}
+                            <small class="ms-1 opacity-75">
+                                ({{ std.room_tag }})
+                            </small>
+                        </span>
+                        {% endfor %}
+
+                        {% if absent_list | length == 0 %}
+                        <div class="text-center w-100 py-3">
+                            <i class="bi bi-emoji-smile text-muted d-block fs-4 mb-1"></i>
+                            <small class="text-muted">ว้าว! วันนี้ไม่มีคนขาดเรียนเลย</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Table History -->
+        <div class="row g-4 mt-3 animate-in delay-5">
+            <div class="col-12">
+                <div class="history-table-1 p-3 p-md-4 shadow-sm border-0 rounded-4 bg-white">
+
+                    <div
+                        class="d-flex flex-column flex-xl-row justify-content-between align-items-start align-items-xl-center border-bottom pb-3 mb-3 gap-3">
+                        <div class="w-100 w-xl-auto text-center text-xl-start">
+                            <h5 class="fw-bold text-dark mb-1">
+                                <i class="bi bi-journal-text text-primary me-2"></i>ประวัติการบันทึกสถานะล่าสุด
+                            </h5>
+                        </div>
+
+                        <div class="d-flex flex-column flex-md-row gap-2 w-100 w-xl-auto justify-content-xl-end">
+                            <div class="input-group input-group-sm shadow-sm flex-grow-1 rounded-3 overflow-hidden border"
+                                id="calendar-wrapper"
+                                style="min-width: 200px; border-color: #e2e8f0 !important; transition: all 0.2s ease;">
+
+                                <!-- ไอคอนปฏิทิน -->
+                                <span class="input-group-text bg-white border-0 text-secondary ps-3" data-toggle
+                                    style="cursor: pointer;">
+                                    <i class="bi bi-calendar-event" style="color: #64748b;"></i>
+                                </span>
+
+                                <!-- ช่องเลือกวันที่ -->
+                                <input type="text" id="history-date-picker" data-input
+                                    class="form-control bg-white border-0 fw-medium text-dark text-center px-1"
+                                    placeholder="เลือกช่วงวันที่..." readonly
+                                    style="font-size: 0.85rem; shadow: none; border-radius: 24px;">
+
+                                <!-- ตัวหมุน Loading -->
+                                <span class="input-group-text bg-white border-0 d-none px-2" id="calendar-loader">
+                                    <div class="spinner-border text-primary" role="status" style="
+                                        width: 0.875rem; 
+                                        height: 0.875rem; 
+                                        --bs-spinner-border-width: 0.12em; 
+                                        border-radius: 24px;">
+                                    </div>
+                                </span>
+
+                                <!-- ปุ่มล้างค่า -->
+                                <button
+                                    class="btn btn-link text-secondary border-0 bg-white px-2.5 text-decoration-none d-none"
+                                    type="button" data-clear id="calendar-clear-btn" title="ล้างค่าวันที่">
+                                    <i class="bi bi-x-circle-fill text-danger opacity-75"></i>
+                                </button>
+                            </div>
+
+                            <div class="input-group input-group-sm shadow-sm rounded-3 overflow-hidden border"
+                                style="min-width: 200px; border-color: #e2e8f0 !important; transition: all 0.2s ease;">
+
+                                <span class="input-group-text bg-white border-0 text-secondary ps-3">
+                                    <i class="bi bi-search" style="color: #64748b;"></i>
+                                </span>
+
+                                <input type="text" id="history-search-input"
+                                    class="form-control bg-white border-0 fw-medium text-dark px-2"
+                                    placeholder="ค้นหาชื่อ หรือ รหัสนักเรียน..."
+                                    style="font-size: 0.85rem; shadow: none;">
+
+                                <button
+                                    class="btn btn-link text-secondary border-0 bg-white px-2.5 text-decoration-none d-none"
+                                    type="button" id="search-clear-btn" title="ล้างคำค้นหา">
+                                    <i class="bi bi-x-circle-fill text-danger opacity-75"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover border-0 mb-0 text-nowrap"
+                            style="--bs-table-border-color: #b0b1b2;">
+                            <thead class="table-light text-secondary small text-uppercase">
+                                <tr>
+                                    <th class="text-center py-3" style="width: 8%;">เลขที่</th>
+                                    <th class="text-center py-3" style="width: 15%;">รหัสนักเรียน</th>
+                                    <th class="py-3" style="width: 22%;">ชื่อ - นามสกุล</th>
+                                    <th class="text-center py-3" style="width: 15%;">ห้อง</th>
+                                    <th class="text-center py-3" style="width: 15%;">สถานะ</th>
+                                    <th class="text-center py-3" style="width: 20%;">เวลาที่เช็คชื่อ</th>
+                                    <th class="text-center py-3" style="width: 14%;">อัปเดตล่าสุด</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body" data-session-id="{{ s.id }}"
+                                data-room-tag="{{ s.room_name }}">
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                        </div>
+                                        กำลังเปิดประวัติ...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div style="height: 50px;"></div>
+
+    {% include 'components/footer.html' %}
+
+    <script src="{{ url_for('static', filename='js/stat_dashboard.js')}}"></script>
+    <script>
+        const pData = "{{ stats.present | default(0) }}";
+        const lData = "{{ stats.late | default(0) }}";
+        const vData = "{{ stats.leave | default(0) }}";
+        const aData = "{{ stats.absent | default(0) }}";
+
+        Chart.defaults.font.family = "'Inter', 'Sarabun', 'sans-serif'";
+        Chart.defaults.color = "#6c757d";
+
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['มา', 'สาย', 'ลา', 'ขาด'],
+                datasets: [{
+                    data: [pData, lData, vData, aData],
+                    backgroundColor: ['#2ecc71', '#f1c40f', '#3498db', '#e74c3c'],
+                    borderWidth: 5,
+                    borderColor: '#ffffff',
+                    hoverOffset: 25
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                cutout: '72%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true, padding: 25, font: { size: 13, weight: 'bold' } }
+                    }
+                }
+            }
+        });
+
+        // Bar Chart 
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: ['มาเรียน', 'มาสาย', 'ลา', 'ขาด'],
+                datasets: [{
+                    label: 'จำนวน (คน)',
+                    data: [pData, lData, vData, aData],
+                    backgroundColor: ['#2ecc71', '#f1c40f', '#3498db', '#e74c3c'],
+                    borderRadius: 12,
+                    barThickness: window.innerWidth < 576 ? 30 : 45
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                indexAxis: window.innerWidth < 576 ? 'y' : 'x',
+                animation: {
+                    duration: 1500,
+                    easing: 'easeOutBounce'
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { display: false }, border: { display: false } },
+                    x: { grid: { display: false }, border: { display: false } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

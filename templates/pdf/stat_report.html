@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap');
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0047AB;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 22px;
+            color: #0047AB;
+        }
+
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+        }
+
+        .summary-header {
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 12px;
+            background-color: #f8faff;
+            border: 1px solid #e2e8f0;
+        }
+
+        .summary-grid {
+            display: table;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .summary-item {
+            display: table-cell;
+            text-align: center;
+            padding: 5px;
+            border-right: 1px solid #cbd5e1;
+        }
+
+        .summary-item:last-child {
+            border-right: none;
+        }
+
+        .stat-val {
+            font-size: 20px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background-color: #0047AB;
+            color: white;
+            border: 1px solid #003380;
+            padding: 10px 5px;
+            font-weight: bold;
+        }
+
+        td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 5px;
+            text-align: center;
+        }
+
+        .text-left {
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .bg-absent {
+            background-color: #fff5f5;
+        }
+
+        .bg-late {
+            background-color: #fffdf0;
+        }
+
+        .sign-area {
+            margin-top: 40px;
+            text-align: right;
+            padding-right: 40px;
+        }
+
+        .footer-note {
+            margin-top: 50px;
+            font-size: 10px;
+            color: #94a3b8;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
+            text-align: left;
+            padding-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h2>รายงานสรุปสถิติการเข้าเรียน</h2>
+        <p>
+            <strong>วิชา:</strong> ({{ s.id_subject }}) {{ s.subject_name }} |
+            <strong>ห้อง:</strong> {{ student_change_level }}{{ s.room_name }} |
+            <strong>วันที่เริ่ม:</strong> {{ today_th }}
+        </p>
+    </div>
+
+    <div class="summary-header">
+        <div style="font-weight: bold; margin-bottom: 8px; color: #1e293b;">บทสรุปภาพรวม (Summary)</div>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <span class="stat-label">นักเรียนทั้งหมด</span>
+                <span class="stat-val" style="color: #334155;">{{ stats.total }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="stat-label" style="color: #16a34a;">มาเรียน</span>
+                <span class="stat-val" style="color: #16a34a;">{{ stats.present }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="stat-label" style="color: #ca8a04;">มาสาย</span>
+                <span class="stat-val" style="color: #ca8a04;">{{ stats.late }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="stat-label" style="color: #0891b2;">ลา</span>
+                <span class="stat-val" style="color: #0891b2;">{{ stats.leave }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="stat-label" style="color: #dc2626;">ขาดเรียน</span>
+                <span class="stat-val" style="color: #dc2626;">{{ stats.absent }}</span>
+            </div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="8%">เลขที่</th>
+                <th width="15%">รหัสนักเรียน</th>
+                <th>ชื่อ-นามสกุล</th>
+                <th width="15%">สถานะ</th>
+                <th width="15%">เวลาเช็คชื่อ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for std in students %}
+            {% set att = att_map.get(std.student_id|string) %}
+            {% set status = att.status if att else 'absent' %}
+
+            <tr class="{% if status == 'absent' %}bg-absent{% elif status == 'late' %}bg-late{% endif %}">
+                <td>{{ std.student_number }}</td>
+                <td>{{ std.student_id }}</td>
+                <td class="text-left">{{ std.full_name }}</td>
+                <td style="font-weight: bold;">
+                    {% if status == 'present' %}<span style="color: #16a34a;">มาเรียน</span>
+                    {% elif status == 'late' %}<span style="color: #ca8a04;">มาสาย</span>
+                    {% elif status == 'leave' %}<span style="color: #0891b2;">ลา</span>
+                    {% else %}<span style="color: #dc2626;">ขาดเรียน</span>
+                    {% endif %}
+                </td>
+                <td style="color: #475569; font-size: 11px;">
+                    {{ att.check_in_time.strftime('%H:%M:%S') if att else '-' }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="sign-area">
+        <div style="margin-bottom: 0px;">ลงชื่อ......................................................ครูผู้สอน</div>
+        <div style="font-weight: bold;">( {{ s.teacher.full_name if s.teacher else
+            '..........................................' }} )</div>
+    </div>
+
+    <div class="footer-note" style="text-align: right; padding-right: 20px;">
+        รายงานฉบับนี้สร้างโดยระบบอัตโนมัติเมื่อวันที่ {{ format_thai_date() }} เวลา {{ format_thai_time() }}
+    </div>
+</body>
+
+</html>
