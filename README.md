@@ -113,6 +113,10 @@
 [![Pandas](https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![NumPy](https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white)](https://numpy.org/)
 
+### 🔄 Real-time Communication
+
+[![Flask-SocketIO](https://img.shields.io/badge/Flask--SocketIO-Real--time-010101?style=for-the-badge&logo=socketdotio&logoColor=white)](https://flask-socketio.readthedocs.io/)
+
 ### 📄 Report Formats
 
 [![PDF](https://img.shields.io/badge/PDF-Report-B30B00?style=for-the-badge)](https://www.adobe.com/acrobat/about-adobe-pdf.html)
