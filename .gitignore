@@ -63,3 +63,6 @@ build/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Local admin setup script
+create_admin.py
